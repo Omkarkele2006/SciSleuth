@@ -1,22 +1,39 @@
 import { GoogleGenAI } from "@google/genai";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+
+import { buildExplanationPrompt } from "@/lib/buildExplanationPrompt";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY!,
 });
 
-export async function GET() {
+export async function POST(
+  request: NextRequest
+) {
   try {
+    const {
+      misconceptionName,
+      brokenConcept,
+      description,
+    } = await request.json();
+
+    const prompt =
+      buildExplanationPrompt(
+        misconceptionName,
+        brokenConcept,
+        description
+      );
+
     const response =
       await ai.models.generateContent({
         model: "gemini-2.5-flash",
-        contents:
-          "Explain Newton's First Law to a beginner student in under 100 words.",
+        contents: prompt,
       });
 
     return NextResponse.json({
       success: true,
-      text: response.text,
+      explanation:
+        response.text,
     });
   } catch (error) {
     console.error(error);
