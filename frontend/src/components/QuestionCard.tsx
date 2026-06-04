@@ -1,18 +1,18 @@
 "use client";
 
-import { useState } from "react";
-
 type QuestionCardProps = {
   question: string;
   options: string[];
+  selectedOption: number | null;
+  onSelect: (index: number) => void;
 };
 
 export default function QuestionCard({
   question,
   options,
+  selectedOption,
+  onSelect,
 }: QuestionCardProps) {
-  const [selectedOption, setSelectedOption] =
-    useState<number | null>(null);
 
   return (
     <div className="border rounded-lg p-6 max-w-xl w-full">
@@ -24,7 +24,7 @@ export default function QuestionCard({
         {options.map((option, index) => (
           <button
             key={index}
-            onClick={() => setSelectedOption(index)}
+            onClick={() => onSelect(index)}
             className={`w-full text-left border rounded p-3 ${
               selectedOption === index
                 ? "bg-blue-600 text-white"
