@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
 import QuestionCard from "@/components/QuestionCard";
 import { questions } from "@/data/questions";
+import { evaluateDiagnostic } from "@/lib/evaluateDiagnostic";
 
 export default function DiagnosticPage() {
     const [currentQuestionIndex, setCurrentQuestionIndex] =
@@ -13,7 +14,7 @@ export default function DiagnosticPage() {
     >({});
     const currentQuestion =
         questions[currentQuestionIndex];
-
+    const router = useRouter();
     const handleNext = () => {
         if (
             currentQuestionIndex <
@@ -23,7 +24,18 @@ export default function DiagnosticPage() {
                 currentQuestionIndex + 1
             );
         } else {
-            console.log("Answers:", answers);
+            const misconceptions =
+                evaluateDiagnostic(
+                    questions,
+                    answers
+                );
+
+            localStorage.setItem(
+                "misconceptions",
+                JSON.stringify(misconceptions)
+            );
+
+            router.push("/results");
         }
     };
     const handleSelectAnswer = (
