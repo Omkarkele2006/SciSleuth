@@ -78,7 +78,7 @@ export default function GraphCanvas({
             <circle
               cx={position.x}
               cy={position.y}
-              r={40}
+              r={45}
               fill={
                 isBroken
                   ? "#ef4444"
@@ -88,11 +88,11 @@ export default function GraphCanvas({
 
             <text
               x={position.x}
-              y={position.y}
+              y={position.y + 65}
               textAnchor="middle"
               dominantBaseline="middle"
               fill="white"
-              fontSize="10"
+              fontSize="15"
             >
               {node.label}
             </text>
