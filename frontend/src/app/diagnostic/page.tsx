@@ -1,9 +1,9 @@
+import QuestionCard from "@/components/QuestionCard";
+
 export default function DiagnosticPage() {
   return (
     <main className="min-h-screen flex items-center justify-center">
-      <h1 className="text-4xl font-bold">
-        Newton's Laws Diagnostic
-      </h1>
+      <QuestionCard question="What is Newton's First Law?" />
     </main>
   );
 }
