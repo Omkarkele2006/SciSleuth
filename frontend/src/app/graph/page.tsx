@@ -98,8 +98,8 @@ export default function GraphPage() {
 
       <div className="text-center max-w-2xl text-zinc-400">
         Red nodes represent concepts affected by
-        detected misconceptions. Green nodes
-        represent concepts currently understood
+        detected misconceptions. <br />
+        Green nodes represent concepts currently understood
         correctly.
       </div>
 
