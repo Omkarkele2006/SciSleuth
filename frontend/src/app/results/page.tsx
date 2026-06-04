@@ -9,7 +9,22 @@ import Link from "next/link";
 export default function ResultsPage() {
     const [misconceptions, setMisconceptions] =
         useState<Misconception[]>([]);
+    const totalConcepts = 5;
 
+    const graphHealth =
+        Math.round(
+            ((totalConcepts -
+                misconceptions.length) /
+                totalConcepts) *
+            100
+        );
+
+    const riskLevel =
+        misconceptions.length >= 4
+            ? "High"
+            : misconceptions.length >= 2
+                ? "Moderate"
+                : "Low";
     useEffect(() => {
         const stored =
             localStorage.getItem(
@@ -28,7 +43,33 @@ export default function ResultsPage() {
             <h1 className="text-4xl font-bold">
                 Diagnostic Results
             </h1>
+            <div className="border rounded-lg p-4 w-[500px]">
+                <div className="flex justify-between">
+                    <span>
+                        Detected Misconceptions
+                    </span>
 
+                    <strong>
+                        {misconceptions.length}
+                    </strong>
+                </div>
+
+                <div className="flex justify-between mt-2">
+                    <span>Graph Health</span>
+
+                    <strong>
+                        {graphHealth}%
+                    </strong>
+                </div>
+
+                <div className="flex justify-between mt-2">
+                    <span>Risk Level</span>
+
+                    <strong>
+                        {riskLevel}
+                    </strong>
+                </div>
+            </div>
             {misconceptions.length === 0 ? (
                 <p>No misconceptions detected.</p>
             ) : (
