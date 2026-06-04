@@ -3,9 +3,12 @@
 import { useState } from "react";
 
 import { nodes, edges } from "@/data/graph";
+import { Misconception } from "@/types/misconception";
+import { getNodeMisconceptions } from "@/lib/getNodeMisconceptions";
 
 type GraphCanvasProps = {
   brokenNodes: string[];
+  misconceptions: Misconception[];
 };
 
 const positions: Record<
@@ -40,9 +43,18 @@ const positions: Record<
 
 export default function GraphCanvas({
   brokenNodes,
+  misconceptions,
 }: GraphCanvasProps) {
   const [hoveredNode, setHoveredNode] =
     useState<string | null>(null);
+
+  const nodeMisconceptions =
+    hoveredNode
+      ? getNodeMisconceptions(
+          hoveredNode,
+          misconceptions
+        )
+      : [];
 
   return (
     <div className="relative">
@@ -119,7 +131,7 @@ export default function GraphCanvas({
       </svg>
 
       {hoveredNode && (
-        <div className="absolute top-4 right-4 w-64 border rounded-lg bg-black p-4 shadow-lg">
+        <div className="absolute top-4 right-4 w-72 border rounded-lg bg-black p-4 shadow-lg">
           <h3 className="font-bold mb-2">
             {
               nodes.find(
@@ -129,15 +141,42 @@ export default function GraphCanvas({
             }
           </h3>
 
-          <p className="text-sm text-zinc-400">
-            Status:
-            {" "}
+          <p className="text-sm text-zinc-400 mb-3">
+            Status:{" "}
             {brokenNodes.includes(
               hoveredNode
             )
               ? "Broken"
               : "Healthy"}
           </p>
+
+          {nodeMisconceptions.length >
+            0 && (
+            <>
+              <p className="font-semibold mb-2">
+                Triggered By:
+              </p>
+
+              <ul className="text-sm space-y-1">
+                {nodeMisconceptions.map(
+                  (
+                    misconception
+                  ) => (
+                    <li
+                      key={
+                        misconception.code
+                      }
+                    >
+                      •{" "}
+                      {
+                        misconception.name
+                      }
+                    </li>
+                  )
+                )}
+              </ul>
+            </>
+          )}
         </div>
       )}
     </div>
