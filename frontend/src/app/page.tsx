@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function Home() {
   return (
     <main className="min-h-screen flex flex-col items-center justify-center gap-6">
@@ -7,9 +9,12 @@ export default function Home() {
         AI Misconception Detective
       </p>
 
-      <button className="px-6 py-3 rounded-lg bg-black text-white">
+      <Link
+        href="/diagnostic"
+        className="px-6 py-3 rounded-lg bg-black text-white"
+      >
         Start Diagnostic
-      </button>
+      </Link>
     </main>
   );
 }
