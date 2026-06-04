@@ -15,6 +15,9 @@ export const misconceptions: Record<
 
     brokenConcept:
       "Newton's First Law",
+
+    graphNodeId:
+      "newton_first_law",
   },
 
   BALANCED_FORCE_MEANS_REST: {
@@ -29,6 +32,9 @@ export const misconceptions: Record<
 
     brokenConcept:
       "Net Force",
+
+    graphNodeId:
+      "net_force",
   },
 
   FORCE_IN_DIRECTION_OF_MOTION: {
@@ -43,6 +49,9 @@ export const misconceptions: Record<
 
     brokenConcept:
       "Newton's First Law",
+
+    graphNodeId:
+      "newton_first_law",
   },
 
   FORCE_IMBALANCE_COLLISION: {
@@ -57,6 +66,9 @@ export const misconceptions: Record<
 
     brokenConcept:
       "Newton's Third Law",
+
+    graphNodeId:
+      "newton_third_law",
   },
 
   MASS_SPEED_CONFUSION: {
@@ -71,5 +83,8 @@ export const misconceptions: Record<
 
     brokenConcept:
       "Newton's Second Law",
+
+    graphNodeId:
+      "newton_second_law",
   },
 };
