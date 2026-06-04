@@ -3,5 +3,8 @@ export type Question = {
   question: string;
   options: string[];
   correctAnswer: number;
-  misconceptionCode: string;
+
+  misconceptions: {
+    [optionIndex: number]: string;
+  };
 };

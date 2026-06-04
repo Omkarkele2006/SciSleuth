@@ -17,9 +17,16 @@ export function evaluateDiagnostic(
       selectedAnswer !==
         question.correctAnswer
     ) {
-      detectedMisconceptions.push(
-        question.misconceptionCode
-      );
+      const misconception =
+        question.misconceptions[
+          selectedAnswer
+        ];
+
+      if (misconception) {
+        detectedMisconceptions.push(
+          misconception
+        );
+      }
     }
   });
 
