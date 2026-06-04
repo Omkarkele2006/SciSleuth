@@ -43,7 +43,7 @@ export default function ResultsPage() {
             <h1 className="text-4xl font-bold">
                 Diagnostic Results
             </h1>
-            <div className="border rounded-lg p-4 w-[500px]">
+            <div className="border rounded-lg p-4 w-125">
                 <div className="flex justify-between">
                     <span>
                         Detected Misconceptions
@@ -54,12 +54,23 @@ export default function ResultsPage() {
                     </strong>
                 </div>
 
-                <div className="flex justify-between mt-2">
-                    <span>Graph Health</span>
+                <div className="mt-4">
+                    <div className="flex justify-between mb-2">
+                        <span>Graph Health</span>
 
-                    <strong>
-                        {graphHealth}%
-                    </strong>
+                        <strong>
+                            {graphHealth}%
+                        </strong>
+                    </div>
+
+                    <div className="w-full bg-zinc-800 rounded-full h-4">
+                        <div
+                            className="bg-green-500 h-4 rounded-full"
+                            style={{
+                                width: `${graphHealth}%`,
+                            }}
+                        />
+                    </div>
                 </div>
 
                 <div className="flex justify-between mt-2">
