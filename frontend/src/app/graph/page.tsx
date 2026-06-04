@@ -28,12 +28,41 @@ export default function GraphPage() {
 
         setBrokenNodes(result);
     }, []);
+    const totalNodes =
+        nodes.length;
 
+    const brokenCount =
+        brokenNodes.length;
+
+    const healthyCount =
+        totalNodes - brokenCount;
     return (
         <main className="min-h-screen flex flex-col items-center justify-center gap-8 p-8">
             <h1 className="text-4xl font-bold">
                 Knowledge Graph
             </h1>
+            <div className="flex gap-6 text-lg">
+                <div>
+                    Broken Concepts:{" "}
+                    <strong>
+                        {brokenCount}
+                    </strong>
+                </div>
+
+                <div>
+                    Healthy Concepts:{" "}
+                    <strong>
+                        {healthyCount}
+                    </strong>
+                </div>
+
+                <div>
+                    Total Concepts:{" "}
+                    <strong>
+                        {totalNodes}
+                    </strong>
+                </div>
+            </div>
 
             <GraphCanvas
                 brokenNodes={brokenNodes}
