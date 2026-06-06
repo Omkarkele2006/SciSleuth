@@ -30,10 +30,26 @@ export async function POST(
         contents: prompt,
       });
 
+    if (!response.text) {
+      throw new Error(
+        "Gemini returned empty response"
+      );
+    }
+
+    const text = response.text
+      .replace(/```json/g, "")
+      .replace(/```/g, "")
+      .trim();
+
+    const parsed =
+      JSON.parse(text);
+
     return NextResponse.json({
       success: true,
       explanation:
-        response.text,
+        parsed.explanation,
+      mission:
+        parsed.mission,
     });
   } catch (error) {
     console.error(error);
