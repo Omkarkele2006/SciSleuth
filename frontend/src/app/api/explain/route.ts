@@ -51,18 +51,27 @@ export async function POST(
       mission:
         parsed.mission,
     });
-  } catch (error) {
-    console.error(error);
+  } catch (error: any) {
+  console.error(error);
 
-    return NextResponse.json(
-      {
-        success: false,
-        message:
-          "Failed to generate explanation",
-      },
-      {
-        status: 500,
-      }
-    );
-  }
+  const isQuotaError =
+    error?.status === 429;
+
+  return NextResponse.json(
+    {
+      success: false,
+
+      explanation: isQuotaError
+        ? "AI service temporarily unavailable. Gemini quota exceeded. Review the repair path."
+        : "AI service temporarily unavailable. Review the repair path.",
+
+      mission: [],
+    },
+    {
+      status: isQuotaError
+        ? 429
+        : 500,
+    }
+  );
+}
 }
