@@ -11,24 +11,92 @@ export default function ResultsPage() {
     useState<Misconception[]>([]);
 
   const [aiExplanations, setAiExplanations] =
-    useState<Record<string, string>>({});
-
+    useState<
+      Record<
+        string,
+        {
+          explanation: string;
+          mission: string[];
+        }
+      >
+    >({});
+  const [loadingCode, setLoadingCode] =
+    useState<string | null>(null);
   const totalConcepts = 5;
 
   const graphHealth = Math.round(
     ((totalConcepts -
       misconceptions.length) /
       totalConcepts) *
-      100
+    100
   );
 
   const riskLevel =
     misconceptions.length >= 4
       ? "High"
       : misconceptions.length >= 2
-      ? "Moderate"
-      : "Low";
+        ? "Moderate"
+        : "Low";
+  async function generateExplanation(
+    misconception: Misconception
+  ) {
+    setLoadingCode(
+      misconception.code
+    );
 
+    try {
+      const response =
+        await fetch(
+          "/api/explain",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              misconceptionName:
+                misconception.name,
+              brokenConcept:
+                misconception.brokenConcept,
+              description:
+                misconception.description,
+            }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      setAiExplanations(
+        (prev) => ({
+          ...prev,
+          [misconception.code]: {
+            explanation:
+              data.explanation ??
+              "Unable to generate explanation.",
+
+            mission:
+              data.mission ?? [],
+          },
+        })
+      );
+    } catch {
+      setAiExplanations(
+        (prev) => ({
+          ...prev,
+          [misconception.code]: {
+            explanation:
+              "Unable to generate explanation.",
+
+            mission: [],
+          },
+        })
+      );
+    }
+
+    setLoadingCode(null);
+  }
   useEffect(() => {
     const stored =
       localStorage.getItem(
@@ -45,59 +113,67 @@ export default function ResultsPage() {
       parsedMisconceptions
     );
 
-    loadExplanations(
-      parsedMisconceptions
-    );
-
-    async function loadExplanations(
-      misconceptions: Misconception[]
+    if (
+      parsedMisconceptions.length > 0
     ) {
-      const explanations: Record<
-        string,
-        string
-      > = {};
-
-      for (const misconception of misconceptions) {
-        try {
-          const response =
-            await fetch(
-              "/api/explain",
-              {
-                method: "POST",
-                headers: {
-                  "Content-Type":
-                    "application/json",
-                },
-                body: JSON.stringify({
-                  misconceptionName:
-                    misconception.name,
-                  brokenConcept:
-                    misconception.brokenConcept,
-                  description:
-                    misconception.description,
-                }),
-              }
-            );
-
-          const data =
-            await response.json();
-
-          explanations[
-            misconception.code
-          ] =
-            data.explanation ??
-            "Unable to generate explanation.";
-        } catch {
-          explanations[
-            misconception.code
-          ] =
-            "Unable to generate explanation.";
-        }
-      }
-
-      setAiExplanations(
-        explanations
+      generateExplanation(
+        parsedMisconceptions[0]
       );
+    }
+
+    async function generateExplanation(
+      misconception: Misconception
+    ) {
+      try {
+        const response =
+          await fetch(
+            "/api/explain",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type":
+                  "application/json",
+              },
+              body: JSON.stringify({
+                misconceptionName:
+                  misconception.name,
+                brokenConcept:
+                  misconception.brokenConcept,
+                description:
+                  misconception.description,
+              }),
+            }
+          );
+
+        const data =
+          await response.json();
+
+        setAiExplanations(
+          (prev) => ({
+            ...prev,
+            [misconception.code]: {
+              explanation:
+                data.explanation ??
+                "Unable to generate explanation.",
+
+              mission:
+                data.mission ?? [],
+            },
+          })
+        );
+      } catch {
+        setAiExplanations(
+          (prev) => ({
+            ...prev,
+            [misconception.code]: {
+              explanation:
+                "Unable to generate explanation.",
+
+              mission: [],
+            },
+          })
+        );
+      }
     }
   }, []);
 
@@ -153,7 +229,7 @@ export default function ResultsPage() {
           (misconception) => {
             const repair =
               repairs[
-                misconception.code
+              misconception.code
               ];
 
             return (
@@ -182,17 +258,64 @@ export default function ResultsPage() {
 
                 <div className="border-t pt-4">
                   <h3 className="font-semibold mb-2">
-                    AI Explanation
+                    AI Guidance
                   </h3>
 
-                  <p className="text-sm text-zinc-300">
-                    {aiExplanations[
-                      misconception.code
-                    ] ||
-                      "Generating explanation..."}
-                  </p>
-                </div>
+                  {aiExplanations[
+                    misconception.code
+                  ] ? (
+                    <>
+                      <p className="text-sm text-zinc-300">
+                        {
+                          aiExplanations[
+                            misconception.code
+                          ].explanation
+                        }
+                      </p>
 
+                      <div className="mt-4">
+                        <h4 className="font-medium mb-2">
+                          AI Recovery Mission
+                        </h4>
+
+                        <ul className="list-disc pl-5 space-y-2 text-sm text-zinc-300">
+                          {aiExplanations[
+                            misconception.code
+                          ].mission.map(
+                            (
+                              step,
+                              index
+                            ) => (
+                              <li
+                                key={index}
+                              >
+                                {step}
+                              </li>
+                            )
+                          )}
+                        </ul>
+                      </div>
+                    </>
+                  ) : (
+                    <button
+                      onClick={() =>
+                        generateExplanation(
+                          misconception
+                        )
+                      }
+                      disabled={
+                        loadingCode ===
+                        misconception.code
+                      }
+                      className="px-4 py-2 bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                    >
+                      {loadingCode ===
+                        misconception.code
+                        ? "Generating..."
+                        : "Generate AI Guidance"}
+                    </button>
+                  )}
+                </div>
                 {repair && (
                   <div className="border-t pt-4">
                     <h3 className="font-semibold">
