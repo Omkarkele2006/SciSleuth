@@ -1,12 +1,12 @@
 export function buildExplanationPrompt(
-    misconceptionName: string,
-    brokenConcept: string,
-    description: string
+  misconceptionName: string,
+  brokenConcept: string,
+  description: string
 ) {
-    return `
+  return `
 You are an expert physics tutor and learning scientist.
 
-A student has been diagnosed with the following misconception.
+A student has been diagnosed with:
 
 Misconception:
 ${misconceptionName}
@@ -17,16 +17,27 @@ ${brokenConcept}
 Description:
 ${description}
 
-Task:
+Return ONLY valid JSON.
 
-1. Explain why students commonly develop this misconception.
-2. Explain the correct physics concept.
-3. Use a simple real-world example.
-4. Keep the explanation beginner friendly.
-5. Use less than 120 words.
-6. Do not use equations.
-7. Write directly to the student.
+Format:
 
-Return only the explanation text.
+{
+  "explanation": "short beginner-friendly explanation",
+  "mission": [
+    "step 1",
+    "step 2",
+    "step 3"
+  ]
+}
+
+Rules:
+
+- explanation under 120 words
+- mission must contain exactly 3 steps
+- mission steps must be actionable
+- mission steps should help repair the misconception
+- no markdown
+- no code blocks
+- output JSON only
 `;
 }
