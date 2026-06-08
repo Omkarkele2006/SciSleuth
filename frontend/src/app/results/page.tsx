@@ -46,52 +46,80 @@ export default function ResultsPage() {
     Record<string, { explanation: string; mission?: string[] }>
   >({});
   const [open, setOpen] = useState<string | null>(null);
-
+  const [loadingCode, setLoadingCode] =
+    useState<string | null>(null);
   const graphHealth = Math.round(
     ((TOTAL_CONCEPTS - misconceptions.length) / TOTAL_CONCEPTS) * 100
   );
   const riskLevel = getSeverity(misconceptions.length);
+  async function generateExplanation(
+    misconception: Misconception
+  ) {
+    setLoadingCode(
+      misconception.code
+    );
 
+    try {
+      const response =
+        await fetch(
+          "/api/explain",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              misconceptionName:
+                misconception.name,
+              brokenConcept:
+                misconception.brokenConcept,
+              description:
+                misconception.description,
+            }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      setAiExplanations(
+        (prev) => ({
+          ...prev,
+          [misconception.code]: {
+            explanation:
+              data.explanation ??
+              "Unable to generate explanation.",
+            mission:
+              data.mission ?? [],
+          },
+        })
+      );
+    } catch {
+      setAiExplanations(
+        (prev) => ({
+          ...prev,
+          [misconception.code]: {
+            explanation:
+              "AI service temporarily unavailable.",
+            mission: [],
+          },
+        })
+      );
+    }
+
+    setLoadingCode(null);
+  }
   useEffect(() => {
     const stored = localStorage.getItem("misconceptions");
     if (!stored) return;
-
     try {
       const parsed: Misconception[] = JSON.parse(stored);
       setMisconceptions(parsed);
-      loadExplanations(parsed);
     } catch {
       console.error("Failed to parse misconceptions");
     }
 
-    async function loadExplanations(miscs: Misconception[]) {
-      const explanations: Record<string, { explanation: string }> = {};
-
-      for (const misconception of miscs) {
-        try {
-          const response = await fetch("/api/explain", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              misconceptionName: misconception.name,
-              brokenConcept: misconception.brokenConcept,
-              description: misconception.description,
-            }),
-          });
-
-          const data = await response.json();
-          explanations[misconception.code] = {
-            explanation: data.explanation ?? "AI service temporarily unavailable. Review the repair path.",
-          };
-        } catch {
-          explanations[misconception.code] = {
-            explanation: "AI service temporarily unavailable. Review the repair path.",
-          };
-        }
-      }
-
-      setAiExplanations(explanations);
-    }
   }, []);
 
   const metrics = [
@@ -108,8 +136,8 @@ export default function ResultsPage() {
         graphHealth >= 80
           ? "Mostly healthy"
           : graphHealth >= 50
-          ? "Moderate damage"
-          : "Foundational repair needed",
+            ? "Moderate damage"
+            : "Foundational repair needed",
       icon: Activity,
     },
     {
@@ -119,8 +147,8 @@ export default function ResultsPage() {
         riskLevel === "High"
           ? "Cascading impact likely"
           : riskLevel === "Medium"
-          ? "Targeted repair needed"
-          : "Low impact",
+            ? "Targeted repair needed"
+            : "Low impact",
       icon: ShieldAlert,
     },
   ];
@@ -271,28 +299,26 @@ export default function ResultsPage() {
                     Learning Status
                   </span>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${
-                      riskLevel === "High"
-                        ? "bg-rose-400/10 text-rose-300 ring-rose-400/30"
-                        : riskLevel === "Medium"
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ring-1 ${riskLevel === "High"
+                      ? "bg-rose-400/10 text-rose-300 ring-rose-400/30"
+                      : riskLevel === "Medium"
                         ? "bg-amber-400/10 text-amber-300 ring-amber-400/30"
                         : "bg-emerald-400/10 text-emerald-300 ring-emerald-400/30"
-                    }`}
+                      }`}
                   >
                     <span
-                      className={`h-1.5 w-1.5 rounded-full ${
-                        riskLevel === "High"
-                          ? "bg-rose-400"
-                          : riskLevel === "Medium"
+                      className={`h-1.5 w-1.5 rounded-full ${riskLevel === "High"
+                        ? "bg-rose-400"
+                        : riskLevel === "Medium"
                           ? "bg-amber-400"
                           : "bg-emerald-400"
-                      }`}
+                        }`}
                     />
                     {riskLevel === "High"
                       ? "Repair Phase"
                       : riskLevel === "Medium"
-                      ? "Review Phase"
-                      : "Assessment Complete"}
+                        ? "Review Phase"
+                        : "Assessment Complete"}
                   </span>
                 </div>
 
@@ -305,9 +331,8 @@ export default function ResultsPage() {
                   <InsightRow
                     icon={Workflow}
                     label="Assessment"
-                    value={`${misconceptions.length} misconception${
-                      misconceptions.length !== 1 ? "s" : ""
-                    } detected`}
+                    value={`${misconceptions.length} misconception${misconceptions.length !== 1 ? "s" : ""
+                      } detected`}
                   />
                   <InsightRow
                     icon={Lightbulb}
@@ -322,19 +347,17 @@ export default function ResultsPage() {
                 </div>
 
                 <div
-                  className={`mt-6 rounded-xl border p-4 text-sm leading-relaxed ${
-                    riskLevel === "High"
-                      ? "border-rose-400/20 bg-rose-400/10 text-rose-100/90"
-                      : riskLevel === "Medium"
+                  className={`mt-6 rounded-xl border p-4 text-sm leading-relaxed ${riskLevel === "High"
+                    ? "border-rose-400/20 bg-rose-400/10 text-rose-100/90"
+                    : riskLevel === "Medium"
                       ? "border-amber-400/20 bg-amber-400/10 text-amber-100/90"
                       : "border-emerald-400/20 bg-emerald-400/10 text-emerald-100/90"
-                  }`}
+                    }`}
                 >
                   {misconceptions.length === 0
                     ? "No misconceptions detected. Your understanding is solid!"
-                    : `You have ${misconceptions.length} misconception${
-                        misconceptions.length !== 1 ? "s" : ""
-                      } affecting your physics understanding. Targeted repair missions can shift these into formal scientific frameworks.`}
+                    : `You have ${misconceptions.length} misconception${misconceptions.length !== 1 ? "s" : ""
+                    } affecting your physics understanding. Targeted repair missions can shift these into formal scientific frameworks.`}
                 </div>
               </div>
             </div>
@@ -415,9 +438,8 @@ export default function ResultsPage() {
                         </div>
                       </div>
                       <ChevronDown
-                        className={`h-5 w-5 shrink-0 text-white/40 transition-transform ${
-                          isOpen ? "rotate-180" : ""
-                        }`}
+                        className={`h-5 w-5 shrink-0 text-white/40 transition-transform ${isOpen ? "rotate-180" : ""
+                          }`}
                       />
                     </button>
 
@@ -435,10 +457,19 @@ export default function ResultsPage() {
                                 {explanation}
                               </p>
                             ) : (
-                              <div className="mt-3 flex items-center gap-2 text-sm text-white/50">
-                                <Loader className="h-4 w-4 animate-spin" />
-                                Generating explanation...
-                              </div>
+                              <button
+                                onClick={() =>
+                                  generateExplanation(m)
+                                }
+                                disabled={
+                                  loadingCode === m.code
+                                }
+                                className="mt-3 rounded-lg bg-emerald-500 px-4 py-2 text-sm font-medium text-black hover:bg-emerald-400 disabled:opacity-50"
+                              >
+                                {loadingCode === m.code
+                                  ? "Generating..."
+                                  : "Generate AI Guidance"}
+                              </button>
                             )}
                           </div>
 
@@ -512,13 +543,12 @@ export default function ResultsPage() {
                   >
                     <div className="flex flex-1 flex-col items-center text-center">
                       <div
-                        className={`grid h-14 w-14 place-items-center rounded-2xl border transition ${
-                          isDone
-                            ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
-                            : isActive
+                        className={`grid h-14 w-14 place-items-center rounded-2xl border transition ${isDone
+                          ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300"
+                          : isActive
                             ? "border-emerald-400/60 bg-emerald-400 text-[oklch(0.16_0.02_265)]"
                             : "border-white/10 bg-white/5 text-white/30"
-                        }`}
+                          }`}
                       >
                         <Icon className="h-5 w-5" />
                       </div>
@@ -582,21 +612,21 @@ export default function ResultsPage() {
         </section>
 
         {/* Footer */}
-              <footer className="border-t border-white/10">
-                <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs text-white/50 md:flex-row">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/logo.jpg"
-                      alt="SciSleuth"
-                      width={32}
-                      height={32}
-                      className="rounded-md"
-                    />
-                    <span>SciSleuth · Built by Team SkyHi</span>
-                  </div>
-                  <p>Diagnose misconceptions, not mistakes.</p>
-                </div>
-              </footer>
+        <footer className="border-t border-white/10">
+          <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs text-white/50 md:flex-row">
+            <div className="flex items-center gap-2">
+              <Image
+                src="/logo.jpg"
+                alt="SciSleuth"
+                width={32}
+                height={32}
+                className="rounded-md"
+              />
+              <span>SciSleuth · Built by Team SkyHi</span>
+            </div>
+            <p>Diagnose misconceptions, not mistakes.</p>
+          </div>
+        </footer>
       </main>
     </div>
   );
@@ -617,8 +647,8 @@ function HealthBar({
     tone === "emerald"
       ? "from-emerald-400 to-teal-400"
       : tone === "rose"
-      ? "from-rose-400 to-orange-400"
-      : "from-amber-300 to-yellow-400";
+        ? "from-rose-400 to-orange-400"
+        : "from-amber-300 to-yellow-400";
   return (
     <div>
       <div className="flex items-center justify-between text-sm">
