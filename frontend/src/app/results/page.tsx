@@ -501,7 +501,11 @@ export default function ResultsPage() {
                             )}
 
                             <button className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-medium text-[oklch(0.16_0.02_265)] shadow-[0_0_60px_-10px_oklch(0.78_0.17_165/0.35)] transition hover:opacity-90">
-                              Start repair mission
+                              <Link
+  href="/mission"
+>
+  Start Repair Mission
+</Link>
                               <ArrowRight className="h-4 w-4" />
                             </button>
                           </div>
