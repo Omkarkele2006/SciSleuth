@@ -49,9 +49,9 @@ export default function RecoverPage() {
     <div className="relative min-h-screen overflow-hidden bg-[#020817] text-white antialiased">
       {/* Ambient gradients */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-emerald-500/20 blur-[140px]" />
-        <div className="absolute top-1/3 -right-32 h-[420px] w-[420px] rounded-full bg-teal-500/15 blur-[140px]" />
-        <div className="absolute bottom-0 -left-32 h-[420px] w-[420px] rounded-full bg-emerald-700/10 blur-[140px]" />
+        <div className="absolute -top-40 left-1/2 h-130 w-130 -translate-x-1/2 rounded-full bg-emerald-500/20 blur-[140px]" />
+        <div className="absolute top-1/3 -right-32 h-105 w-105 rounded-full bg-teal-500/15 blur-[140px]" />
+        <div className="absolute bottom-0 -left-32 h-105 w-105 rounded-full bg-emerald-700/10 blur-[140px]" />
         <div
           className="absolute inset-0"
           style={{
@@ -126,7 +126,7 @@ export default function RecoverPage() {
               return (
                 <div
                   key={card.label}
-                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl transition hover:border-emerald-400/30 hover:bg-white/[0.06]"
+                  className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/3 p-6 backdrop-blur-xl transition hover:border-emerald-400/30 hover:bg-white/6"
                 >
                   <div className="absolute -right-12 -top-12 h-40 w-40 rounded-full bg-emerald-400/10 blur-3xl transition group-hover:bg-emerald-400/20" />
                   <div className="relative">
@@ -150,7 +150,7 @@ export default function RecoverPage() {
           {/* SECTION 3 — AI RECOVERY REPORT */}
           <section className="mb-12">
             <div
-              className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl sm:p-12"
+              className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/3 p-8 backdrop-blur-xl sm:p-12"
               style={{
                 backgroundImage:
                   "radial-gradient(ellipse at top left, rgba(16,185,129,0.10), transparent 60%)",
@@ -161,7 +161,7 @@ export default function RecoverPage() {
 
               <div className="relative grid gap-10 lg:grid-cols-[1.2fr_1fr]">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/60 backdrop-blur">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-white/60 backdrop-blur">
                     <Brain className="h-3.5 w-3.5 text-emerald-300" />
                     Powered by Gemini
                   </div>
@@ -262,7 +262,7 @@ export default function RecoverPage() {
           {/* SECTION 4 — BEFORE VS AFTER */}
           <section className="mb-12 grid gap-5 md:grid-cols-2">
             {/* Before */}
-            <div className="overflow-hidden rounded-3xl border border-rose-400/20 bg-rose-400/[0.04] p-7 backdrop-blur-xl">
+            <div className="overflow-hidden rounded-3xl border border-rose-400/20 bg-rose-400/4 p-7 backdrop-blur-xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="grid h-9 w-9 place-items-center rounded-lg bg-rose-400/10 ring-1 ring-rose-400/30">
                   <AlertTriangle className="h-4 w-4 text-rose-300" />
@@ -281,7 +281,7 @@ export default function RecoverPage() {
                 ].map((row) => (
                   <div
                     key={row.label}
-                    className="flex items-center justify-between rounded-xl border border-rose-400/10 bg-rose-400/[0.06] px-4 py-3"
+                    className="flex items-center justify-between rounded-xl border border-rose-400/10 bg-rose-400/6 px-4 py-3"
                   >
                     <span className="text-xs text-white/60">{row.label}</span>
                     <span className="text-sm font-semibold text-rose-200">{row.value}</span>
@@ -291,7 +291,7 @@ export default function RecoverPage() {
             </div>
 
             {/* After */}
-            <div className="overflow-hidden rounded-3xl border border-emerald-400/20 bg-emerald-400/[0.04] p-7 backdrop-blur-xl">
+            <div className="overflow-hidden rounded-3xl border border-emerald-400/20 bg-emerald-400/4 p-7 backdrop-blur-xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-400/10 ring-1 ring-emerald-400/30">
                   <CheckCircle2 className="h-4 w-4 text-emerald-300" />
@@ -310,7 +310,7 @@ export default function RecoverPage() {
                 ].map((row) => (
                   <div
                     key={row.label}
-                    className="flex items-center justify-between rounded-xl border border-emerald-400/10 bg-emerald-400/[0.06] px-4 py-3"
+                    className="flex items-center justify-between rounded-xl border border-emerald-400/10 bg-emerald-400/6 px-4 py-3"
                   >
                     <span className="text-xs text-white/60">{row.label}</span>
                     <span className="text-sm font-semibold text-emerald-200">{row.value}</span>
@@ -323,7 +323,7 @@ export default function RecoverPage() {
           {/* SECTION 5 — KNOWLEDGE GRAPH IMPACT */}
           <section className="mb-12">
             <div
-              className="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-white/[0.03] p-8 backdrop-blur-xl"
+              className="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-white/3 p-8 backdrop-blur-xl"
               style={{
                 backgroundImage:
                   "radial-gradient(ellipse at top right, rgba(16,185,129,0.12), transparent 60%), radial-gradient(ellipse at bottom left, rgba(20,184,166,0.08), transparent 55%)",
@@ -333,7 +333,7 @@ export default function RecoverPage() {
 
               <div className="relative grid items-center gap-10 lg:grid-cols-[1.4fr_1fr]">
                 <div>
-                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs text-white/60 backdrop-blur">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/4 px-3 py-1 text-xs text-white/60 backdrop-blur">
                     <Network className="h-3.5 w-3.5 text-emerald-300" />
                     Connected concepts
                   </div>
@@ -353,7 +353,7 @@ export default function RecoverPage() {
                     ].map((stat) => (
                       <div
                         key={stat.label}
-                        className="rounded-xl border border-white/10 bg-white/[0.03] p-4 text-center"
+                        className="rounded-xl border border-white/10 bg-white/3 p-4 text-center"
                       >
                         <div className={`text-2xl font-semibold ${stat.color}`}>{stat.value}</div>
                         <div className="mt-1 text-[10px] uppercase tracking-wider text-white/40">{stat.label}</div>
@@ -373,7 +373,7 @@ export default function RecoverPage() {
           {/* SECTION 6 — CTA */}
           <section className="mb-12">
             <div
-              className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/[0.03] p-10 text-center backdrop-blur-xl md:p-14"
+              className="relative overflow-hidden rounded-3xl border border-white/10 bg-white/3 p-10 text-center backdrop-blur-xl md:p-14"
               style={{
                 backgroundImage:
                   "radial-gradient(ellipse at top, rgba(16,185,129,0.15), transparent 60%), radial-gradient(ellipse at bottom right, rgba(20,184,166,0.10), transparent 55%)",
@@ -401,7 +401,7 @@ export default function RecoverPage() {
                 </Link>
                 <Link
                   href="/graph"
-                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/[0.04] px-7 py-4 text-sm font-medium text-white/80 backdrop-blur transition hover:bg-white/[0.08] hover:text-white"
+                  className="inline-flex items-center gap-2 rounded-2xl border border-white/10 bg-white/4 px-7 py-4 text-sm font-medium text-white/80 backdrop-blur transition hover:bg-white/8 hover:text-white"
                 >
                   View Knowledge Graph
                 </Link>
@@ -411,7 +411,7 @@ export default function RecoverPage() {
 
           {/* SECTION 7 — JOURNEY COMPLETE */}
           <section className="mb-4">
-            <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-8 backdrop-blur-xl sm:p-10">
+            <div className="rounded-3xl border border-white/10 bg-white/3 p-8 backdrop-blur-xl sm:p-10">
               <div className="mb-8 flex items-center justify-between">
                 <div>
                   <h2 className="text-2xl font-semibold tracking-tight">
