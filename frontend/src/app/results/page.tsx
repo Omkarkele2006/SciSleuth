@@ -115,11 +115,17 @@ export default function ResultsPage() {
     if (!stored) return;
     try {
       const parsed: Misconception[] = JSON.parse(stored);
-      setMisconceptions(parsed);
+
+      // Deduplicate by misconception code
+      const unique = parsed.filter(
+        (m, index, self) =>
+          index === self.findIndex((t) => t.code === m.code)
+      );
+
+      setMisconceptions(unique);
     } catch {
       console.error("Failed to parse misconceptions");
     }
-
   }, []);
 
   const metrics = [
