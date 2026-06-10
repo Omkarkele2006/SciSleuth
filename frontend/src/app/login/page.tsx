@@ -3,6 +3,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import {
     Brain,
     Sparkles,
@@ -23,7 +25,30 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const router = useRouter();
+    const handleLogin = async (
+        e: React.FormEvent
+    ) => {
+        e.preventDefault();
 
+        setLoading(true);
+
+        const { error } =
+            await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+        setLoading(false);
+
+        if (error) {
+            alert(error.message);
+            return;
+        }
+
+        router.push("/diagnostic");
+    };
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#06111f] text-slate-100 antialiased">
             {/* Ambient background */}
@@ -112,7 +137,7 @@ export default function LoginPage() {
                                 </p>
                             </div>
 
-                            <form className="space-y-5" onSubmit={(e) => e.preventDefault()}>
+                            <form className="space-y-5" onSubmit={handleLogin}>
                                 {/* Email */}
                                 <div className="space-y-2">
                                     <label htmlFor="email" className="text-xs font-medium uppercase tracking-wider text-slate-400">
@@ -172,10 +197,14 @@ export default function LoginPage() {
 
                                 {/* Primary */}
                                 <button
-                                    type="submit"
-                                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-linear-to-r from-emerald-400 to-teal-500 px-6 py-3.5 text-sm font-semibold text-[#04121f] shadow-lg shadow-emerald-500/30 transition hover:shadow-emerald-400/50"
+                                    type="submit" disabled={loading}
+                                    className="group relative flex w-full items-center justify-center gap-2 overflow-hidden disabled:opacity-50 rounded-xl bg-linear-to-r from-emerald-400 to-teal-500 px-6 py-3.5 text-sm font-semibold text-[#04121f] shadow-lg shadow-emerald-500/30 transition hover:shadow-emerald-400/50"
                                 >
-                                    <span>Sign In</span>
+                                    <span>
+                                        {loading
+                                            ? "Signing In..."
+                                            : "Sign In"}
+                                    </span>
                                     <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
                                 </button>
 

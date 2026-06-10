@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import {
   Sparkles,
@@ -32,7 +33,7 @@ export default function SignupPage() {
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const [success, setSuccess] = useState("");
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -44,10 +45,30 @@ export default function SignupPage() {
     if (!agreed) return setError("Please agree to the Terms and Privacy Policy.");
 
     setLoading(true);
-    // TODO: replace with real auth (Firebase, NextAuth, etc.)
-    await new Promise((r) => setTimeout(r, 800));
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+
     setLoading(false);
-    router.push("/diagnostic");
+
+    if (error) {
+      setError(error.message);
+      return;
+    }
+    setSuccess(
+      "Account created successfully! Please verify your email. After verification, click Start Diagnostic and sign in using the same email and password."
+    );
+    setFullName("");
+    setEmail("");
+    setPassword("");
+    setConfirmPassword("");
+    // router.push("/login");
   };
 
   const inputClass =
@@ -75,24 +96,24 @@ export default function SignupPage() {
       <header className="relative z-20 border-b border-white/10 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Link href="/" className="flex items-center gap-2.5">
-                        <Image
-                            src="/logo.jpg"
-                            alt="SciSleuth"
-                            width={40}
-                            height={40}
-                            className="rounded-lg"
-                        />
+            <Image
+              src="/logo.jpg"
+              alt="SciSleuth"
+              width={40}
+              height={40}
+              className="rounded-lg"
+            />
 
-                        <div className="flex flex-col leading-none">
-                            <span className="text-lg font-semibold tracking-tight">
-                                SciSleuth
-                            </span>
+            <div className="flex flex-col leading-none">
+              <span className="text-lg font-semibold tracking-tight">
+                SciSleuth
+              </span>
 
-                            <span className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-slate-400">
-                                AI Learning Intelligence
-                            </span>
-                        </div>
-                    </Link>
+              <span className="mt-0.5 text-[10px] uppercase tracking-[0.18em] text-slate-400">
+                AI Learning Intelligence
+              </span>
+            </div>
+          </Link>
           <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
             <span className="relative flex h-2 w-2">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
@@ -139,7 +160,20 @@ export default function SignupPage() {
                   Build your knowledge graph and unlock AI-guided recovery.
                 </p>
               </div>
+              {success && (
+                <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm text-emerald-300">
+                  <p>
+                    {success}
+                  </p>
 
+                  <Link
+                    href="/login"
+                    className="mt-4 inline-flex rounded-lg bg-emerald-400 px-4 py-2 font-medium text-black hover:bg-emerald-300"
+                  >
+                    Go to Login
+                  </Link>
+                </div>
+              )}
               <form className="space-y-5" onSubmit={handleSubmit} noValidate>
                 {/* Full Name */}
                 <div className="space-y-2">
@@ -349,35 +383,35 @@ export default function SignupPage() {
                     </defs>
 
                     {[
-                      [200,170, 80, 60], [200,170, 330,70],  [200,170, 70,280],
-                      [200,170, 320,290],[200,170, 200,40],  [200,170, 200,320],
-                      [80, 60,  70,280], [330,70,  320,290], [200,40,  330,70],
-                      [200,40,  80, 60],
-                    ].map(([x1,y1,x2,y2], i) => (
+                      [200, 170, 80, 60], [200, 170, 330, 70], [200, 170, 70, 280],
+                      [200, 170, 320, 290], [200, 170, 200, 40], [200, 170, 200, 320],
+                      [80, 60, 70, 280], [330, 70, 320, 290], [200, 40, 330, 70],
+                      [200, 40, 80, 60],
+                    ].map(([x1, y1, x2, y2], i) => (
                       <line key={i} x1={x1} y1={y1} x2={x2} y2={y2}
                         stroke="url(#edgeSignup)" strokeWidth="1.2" />
                     ))}
 
                     {[
-                      [80,60,8],[330,70,9],[70,280,7],[320,290,10],[200,40,6],[200,320,7],
-                    ].map(([cx,cy,r], i) => (
+                      [80, 60, 8], [330, 70, 9], [70, 280, 7], [320, 290, 10], [200, 40, 6], [200, 320, 7],
+                    ].map(([cx, cy, r], i) => (
                       <g key={i}>
-                        <circle cx={cx} cy={cy} r={Number(r)+6} fill="#10b981" opacity="0.12" />
+                        <circle cx={cx} cy={cy} r={Number(r) + 6} fill="#10b981" opacity="0.12" />
                         <circle cx={cx} cy={cy} r={r} fill="url(#nodeCoreSignup)" />
                       </g>
                     ))}
 
                     <circle cx="200" cy="170" r="28" fill="#10b981" opacity="0.15" />
                     <circle cx="200" cy="170" r="18" fill="url(#nodeCoreSignup)" />
-                    <circle cx="200" cy="170" r="6"  fill="#ecfeff" />
+                    <circle cx="200" cy="170" r="6" fill="#ecfeff" />
                   </svg>
 
                   {/* Floating chips */}
                   {[
-                    { className: "absolute left-4 top-4",     icon: BrainCircuit, color: "text-emerald-400", title: "AI Learning Signal",        sub: "Adaptive · Real-time"   },
-                    { className: "absolute right-4 top-1/3",  icon: LineChart,    color: "text-teal-300",    title: "Recovery Forecast",          sub: "+18% projected"         },
-                    { className: "absolute bottom-4 left-1/4",icon: Network,      color: "text-emerald-400", title: "Concept Mesh Initialized",   sub: null                     },
-                    { className: "absolute right-6 bottom-10",icon: Atom,         color: "text-emerald-400", title: "Student Progress · 72%",     sub: null                     },
+                    { className: "absolute left-4 top-4", icon: BrainCircuit, color: "text-emerald-400", title: "AI Learning Signal", sub: "Adaptive · Real-time" },
+                    { className: "absolute right-4 top-1/3", icon: LineChart, color: "text-teal-300", title: "Recovery Forecast", sub: "+18% projected" },
+                    { className: "absolute bottom-4 left-1/4", icon: Network, color: "text-emerald-400", title: "Concept Mesh Initialized", sub: null },
+                    { className: "absolute right-6 bottom-10", icon: Atom, color: "text-emerald-400", title: "Student Progress · 72%", sub: null },
                   ].map(({ className, icon: Icon, color, title, sub }) => (
                     <div key={title} className={`${className} rounded-xl border border-white/10 bg-white/6 px-3 py-2 backdrop-blur-md`}>
                       <div className={`flex items-center gap-2 text-[11px] text-slate-300`}>
@@ -392,9 +426,9 @@ export default function SignupPage() {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { icon: GraduationCap, label: "Learners",  value: "12K+" },
-                    { icon: Activity,      label: "Diagnoses", value: "48K"  },
-                    { icon: ShieldCheck,   label: "Recovery",  value: "96%"  },
+                    { icon: GraduationCap, label: "Learners", value: "12K+" },
+                    { icon: Activity, label: "Diagnoses", value: "48K" },
+                    { icon: ShieldCheck, label: "Recovery", value: "96%" },
                   ].map(({ icon: Icon, label, value }) => (
                     <div key={label} className="rounded-xl border border-white/10 bg-white/4 p-3 backdrop-blur-md">
                       <Icon className="mb-2 h-4 w-4 text-emerald-400" />
