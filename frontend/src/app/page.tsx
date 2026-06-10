@@ -77,12 +77,12 @@ export default function Page() {
             <Link href="#features" className="hover:text-white transition">
               Features
             </Link>
-            <Link href="/teacher" className="hover:text-white transition">
+            {/* <Link href="/teacher" className="hover:text-white transition">
               Analytics
-            </Link>
+            </Link> */}
           </nav>
           <Link
-            href="/diagnostic"
+            href="/login"
             className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400 px-4 py-2 text-sm font-medium text-[oklch(0.16_0.02_265)] transition hover:opacity-90"
           >
             Start Diagnostic <ArrowRight className="h-3.5 w-3.5" />
@@ -113,7 +113,7 @@ export default function Page() {
 
         <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
           <Link
-            href="/diagnostic"
+            href="/login"
             className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-sm font-medium text-[oklch(0.16_0.02_265)] shadow-[0_0_60px_-10px_oklch(0.78_0.17_165/0.35)] transition hover:-translate-y-px"
           >
             Start Diagnostic
@@ -367,7 +367,7 @@ export default function Page() {
           </p>
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
             <Link
-              href="/diagnostic"
+              href="/login"
               className="inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-sm font-medium text-[oklch(0.16_0.02_265)] shadow-[0_0_60px_-10px_oklch(0.78_0.17_165/0.35)] transition hover:-translate-y-px"
             >
               Start Diagnostic <ArrowRight className="h-4 w-4" />
