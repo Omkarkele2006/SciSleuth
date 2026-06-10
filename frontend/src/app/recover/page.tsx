@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import {
   CheckCircle2,
   ArrowRight,
@@ -21,7 +24,18 @@ const TOTAL_CONCEPTS = 5;
 
 export default function RecoverPage() {
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
-
+  const router = useRouter();
+  const handleLogout = async () => {
+  await supabase.auth.signOut();
+  router.push("/login");
+};
+  useEffect(() => {
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) {
+      router.replace("/login");
+    }
+  });
+}, [router]);
   useEffect(() => {
     const stored = localStorage.getItem("misconceptions");
     if (!stored) return;
@@ -70,10 +84,20 @@ export default function RecoverPage() {
               <Image src="/logo.jpg" alt="SciSleuth" width={32} height={32} className="rounded-md" />
               <span className="font-bold">SciSleuth</span>
             </Link>
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Recovery Complete
-            </div>
+            <div className="flex items-center gap-4">
+  <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
+    <CheckCircle2 className="h-3.5 w-3.5" />
+    Recovery Complete
+  </div>
+
+  <button
+    onClick={handleLogout}
+    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+  >
+    <LogOut className="h-4 w-4" />
+    Logout
+  </button>
+</div>
           </div>
         </header>
 

@@ -2,7 +2,10 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
   Circle,
@@ -19,7 +22,18 @@ import { Misconception } from "@/types/misconception";
 export default function MissionPage() {
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
   const [completed, setCompleted] = useState<Record<string, Record<number, boolean>>>({});
-
+  const router = useRouter();
+  const handleLogout = async () => {
+  await supabase.auth.signOut();
+  router.push("/login");
+};
+  useEffect(() => {
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) {
+      router.replace("/login");
+    }
+  });
+}, [router]);
   useEffect(() => {
     const stored = localStorage.getItem("misconceptions");
     if (!stored) return;
@@ -82,13 +96,23 @@ export default function MissionPage() {
               <Image src="/logo.jpg" alt="SciSleuth" width={32} height={32} className="rounded-md" />
               <span className="font-bold">SciSleuth</span>
             </Link>
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              Repair Mission Active
-            </div>
+            <div className="flex items-center gap-4">
+  <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
+    <span className="relative flex h-2 w-2">
+      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+    </span>
+    Repair Mission Active
+  </div>
+
+  <button
+    onClick={handleLogout}
+    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+  >
+    <LogOut className="h-4 w-4" />
+    Logout
+  </button>
+</div>
           </div>
         </header>
 

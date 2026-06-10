@@ -1,6 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -24,18 +27,33 @@ import GraphCanvas from "@/components/GraphCanvas";
 export default function GraphPage() {
     const [brokenNodes, setBrokenNodes] =
         useState<string[]>([]);
-
+    const router = useRouter();
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push("/login");
+    };
     const [misconceptions, setMisconceptions] =
         useState<Misconception[]>([]);
-
     useEffect(() => {
-        const stored = localStorage.getItem("misconceptions");
-        if (!stored) return;
-        const parsedMisconceptions: Misconception[] = JSON.parse(stored);
-        setMisconceptions(parsedMisconceptions);
-        const result = evaluateGraphHealth(parsedMisconceptions);
-        setBrokenNodes(result);
-    }, []);
+        const checkAuth = async () => {
+            const { data } = await supabase.auth.getUser();
+
+            if (!data.user) {
+                router.replace("/login");
+                return;
+            }
+
+            const stored = localStorage.getItem("misconceptions");
+            if (!stored) return;
+
+            const parsed: Misconception[] = JSON.parse(stored);
+
+            setMisconceptions(parsed);
+            setBrokenNodes(evaluateGraphHealth(parsed));
+        };
+
+        checkAuth();
+    }, [router]);
 
     const totalNodes = nodes.length;
     const brokenCount = brokenNodes.length;
@@ -93,19 +111,33 @@ export default function GraphPage() {
             {/* Top nav */}
             <header className="sticky top-0 z-30 border-b border-white/5 bg-[#020817]/70 backdrop-blur-xl">
                 <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/logo.jpg"
-              alt="SciSleuth"
-              width={32}
-              height={32}
-              className="rounded-md"
-            />
-            <span className="font-bold">SciSleuth</span>
-          </Link>
-                    <div className="hidden items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs text-slate-300 md:flex">
-                        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" />
-                        Knowledge Graph · live analysis
+                    <Link href="/" className="flex items-center gap-2">
+                        <Image
+                            src="/logo.jpg"
+                            alt="SciSleuth"
+                            width={32}
+                            height={32}
+                            className="rounded-md"
+                        />
+                        <span className="font-bold">SciSleuth</span>
+                    </Link>
+
+                    <div className="flex items-center gap-4">
+                        <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
+                            <span className="relative flex h-2 w-2">
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                            </span>
+                            Knowledge Graph · live analysis
+                        </div>
+
+                        <button
+                            onClick={handleLogout}
+                            className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 transition hover:bg-red-500/10"
+                        >
+                            <LogOut className="h-4 w-4" />
+                            Logout
+                        </button>
                     </div>
                 </div>
             </header>
@@ -320,20 +352,20 @@ export default function GraphPage() {
 
             {/* SECTION 7 — FOOTER */}
             <footer className="border-t border-white/10">
-                    <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs text-white/50 md:flex-row">
-                      <div className="flex items-center gap-2">
+                <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs text-white/50 md:flex-row">
+                    <div className="flex items-center gap-2">
                         <Image
-                          src="/logo.jpg"
-                          alt="SciSleuth"
-                          width={32}
-                          height={32}
-                          className="rounded-md"
+                            src="/logo.jpg"
+                            alt="SciSleuth"
+                            width={32}
+                            height={32}
+                            className="rounded-md"
                         />
                         <span>SciSleuth · Built by Team SkyHi</span>
-                      </div>
-                      <p>Diagnose misconceptions, not mistakes.</p>
                     </div>
-                  </footer>
+                    <p>Diagnose misconceptions, not mistakes.</p>
+                </div>
+            </footer>
         </div>
     );
 }

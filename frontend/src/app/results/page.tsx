@@ -1,7 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import { LogOut } from "lucide-react";
 import Image from "next/image";
 import {
   Brain,
@@ -46,6 +50,11 @@ export default function ResultsPage() {
     Record<string, { explanation: string; mission?: string[] }>
   >({});
   const [open, setOpen] = useState<string | null>(null);
+  const router = useRouter();
+  const handleLogout = async () => {
+  await supabase.auth.signOut();
+  router.push("/login");
+};
   const [loadingCode, setLoadingCode] =
     useState<string | null>(null);
   const graphHealth = Math.round(
@@ -158,7 +167,13 @@ export default function ResultsPage() {
       icon: ShieldAlert,
     },
   ];
-
+  useEffect(() => {
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) {
+      router.replace("/login");
+    }
+  });
+}, [router]);
   return (
     <div className="relative min-h-screen overflow-hidden bg-[oklch(0.16_0.018_265)] text-[oklch(0.97_0.005_250)] font-sans antialiased">
       {/* Ambient gradients — matches page.tsx */}
@@ -195,9 +210,19 @@ export default function ResultsPage() {
             />
             <span className="font-bold">SciSleuth</span>
           </Link>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60 backdrop-blur">
-            Diagnostic Report
-          </span>
+          <div className="flex items-center gap-4">
+  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60 backdrop-blur">
+    Diagnostic Report
+  </span>
+
+  <button
+    onClick={handleLogout}
+    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+  >
+    <LogOut className="h-4 w-4" />
+    Logout
+  </button>
+</div>
         </div>
       </header>
 

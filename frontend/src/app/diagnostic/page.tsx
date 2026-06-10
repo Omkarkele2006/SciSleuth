@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 import Image from "next/image";
 import { questions } from "@/data/questions";
 import { evaluateDiagnostic } from "@/lib/evaluateDiagnostic";
@@ -12,13 +15,51 @@ export default function DiagnosticPage() {
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const currentQuestion = questions[currentQuestionIndex];
   const router = useRouter();
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      const misconceptions = evaluateDiagnostic(questions, answers);
-      localStorage.setItem("misconceptions", JSON.stringify(misconceptions));
+      const misconceptions =
+        evaluateDiagnostic(
+          questions,
+          answers
+        );
+
+      localStorage.setItem(
+        "misconceptions",
+        JSON.stringify(misconceptions)
+      );
+
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (user) {
+        const totalConcepts = 5;
+
+        const graphHealth = Math.round(
+          ((totalConcepts -
+            misconceptions.length) /
+            totalConcepts) *
+          100
+        );
+
+        await supabase
+          .from("attempts")
+          .insert({
+            user_id: user.id,
+            graph_health: graphHealth,
+            misconception_count:
+              misconceptions.length,
+            misconceptions,
+          });
+      }
+
       router.push("/results");
     }
   };
@@ -40,7 +81,13 @@ export default function DiagnosticPage() {
     { label: "Misconception Detection", desc: "Surfacing reasoning gaps", active: answered > 0 },
     { label: "Knowledge Graph Update", desc: "Rebuilding your concept network", active: answered > 1 },
   ];
-
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        router.replace("/login");
+      }
+    });
+  }, [router]);
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#020817] text-white antialiased">
       {/* Ambient gradients */}
@@ -63,17 +110,35 @@ export default function DiagnosticPage() {
         <header className="border-b border-white/10 backdrop-blur-xl">
           <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
             <Link href="/" className="flex items-center gap-2">
-              <Image src="/logo.jpg" alt="SciSleuth" width={32} height={32} className="rounded-md" />
+              <Image
+                src="/logo.jpg"
+                alt="SciSleuth"
+                width={32}
+                height={32}
+                className="rounded-md"
+              />
               <span className="font-bold">SciSleuth</span>
             </Link>
-            <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-              </span>
-              Diagnostic in progress
+
+            <div className="flex items-center gap-4">
+              <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Diagnostic in progress
+              </div>
+
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 transition hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
             </div>
           </div>
+
         </header>
 
         <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-12 md:py-16">
@@ -119,13 +184,12 @@ export default function DiagnosticPage() {
               {questions.map((_, i) => (
                 <div
                   key={i}
-                  className={`h-1 flex-1 rounded-full transition-all ${
-                    i < currentQuestionIndex
-                      ? "bg-emerald-400/70"
-                      : i === currentQuestionIndex
+                  className={`h-1 flex-1 rounded-full transition-all ${i < currentQuestionIndex
+                    ? "bg-emerald-400/70"
+                    : i === currentQuestionIndex
                       ? "bg-emerald-300"
                       : "bg-white/10"
-                  }`}
+                    }`}
                 />
               ))}
             </div>
@@ -161,18 +225,16 @@ export default function DiagnosticPage() {
                   <button
                     key={index}
                     onClick={() => handleSelectAnswer(index)}
-                    className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
-                      isSelected
-                        ? "border-emerald-400/50 bg-emerald-400/8 shadow-[0_0_30px_rgba(16,185,129,0.25)]"
-                        : "border-white/10 bg-white/2 hover:border-white/20 hover:bg-white/5"
-                    }`}
+                    className={`group relative flex w-full items-center gap-4 overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${isSelected
+                      ? "border-emerald-400/50 bg-emerald-400/8 shadow-[0_0_30px_rgba(16,185,129,0.25)]"
+                      : "border-white/10 bg-white/2 hover:border-white/20 hover:bg-white/5"
+                      }`}
                   >
                     <div
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-semibold transition-all ${
-                        isSelected
-                          ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-200"
-                          : "border-white/10 bg-white/4 text-white/60 group-hover:border-white/20 group-hover:text-white/80"
-                      }`}
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-semibold transition-all ${isSelected
+                        ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-200"
+                        : "border-white/10 bg-white/4 text-white/60 group-hover:border-white/20 group-hover:text-white/80"
+                        }`}
                     >
                       {letters[index]}
                     </div>
@@ -180,11 +242,10 @@ export default function DiagnosticPage() {
                       {option}
                     </div>
                     <div
-                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all ${
-                        isSelected
-                          ? "border-emerald-300 bg-emerald-400/80 text-[#020817]"
-                          : "border-white/15 bg-transparent text-transparent"
-                      }`}
+                      className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all ${isSelected
+                        ? "border-emerald-300 bg-emerald-400/80 text-[#020817]"
+                        : "border-white/15 bg-transparent text-transparent"
+                        }`}
                     >
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
                         <path d="M20 6L9 17l-5-5" />
@@ -225,9 +286,8 @@ export default function DiagnosticPage() {
                       <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
                     )}
                     <span
-                      className={`relative inline-flex h-2.5 w-2.5 rounded-full ${
-                        step.active ? "bg-emerald-400" : "bg-white/20"
-                      }`}
+                      className={`relative inline-flex h-2.5 w-2.5 rounded-full ${step.active ? "bg-emerald-400" : "bg-white/20"
+                        }`}
                     />
                   </span>
                   <div className="min-w-0">

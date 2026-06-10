@@ -31,23 +31,23 @@ export default function LoginPage() {
         e: React.FormEvent
     ) => {
         e.preventDefault();
-
+        console.log("LOGIN CLICKED");
         setLoading(true);
 
-        const { error } =
+        const { data, error } =
             await supabase.auth.signInWithPassword({
                 email,
                 password,
             });
-
+        console.log("DATA:", data);
+        console.log("ERROR:", error);
         setLoading(false);
 
         if (error) {
             alert(error.message);
             return;
         }
-
-        router.push("/diagnostic");
+        router.replace("/diagnostic");
     };
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#06111f] text-slate-100 antialiased">

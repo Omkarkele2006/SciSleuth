@@ -2,6 +2,10 @@
 
 import React, { useMemo } from "react";
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { supabase } from "@/lib/supabase";
+import { useRouter } from "next/navigation";
+import { LogOut } from "lucide-react";
 import Image from "next/image";
 import {
   Activity,
@@ -82,6 +86,18 @@ const severityStyles: Record<
 };
 
 export default function TeacherAnalyticsPage() {
+  const router = useRouter();
+  const handleLogout = async () => {
+  await supabase.auth.signOut();
+  router.push("/login");
+};
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        router.replace("/login");
+      }
+    });
+  }, [router]);
   const stats = useMemo(() => {
     const top = analytics.reduce((a, b) => (b.count > a.count ? b : a), analytics[0]);
     const avgSeverityNum =
@@ -90,10 +106,10 @@ export default function TeacherAnalyticsPage() {
       avgSeverityNum >= 3.25
         ? "Critical"
         : avgSeverityNum >= 2.5
-        ? "High"
-        : avgSeverityNum >= 1.75
-        ? "Medium"
-        : "Low";
+          ? "High"
+          : avgSeverityNum >= 1.75
+            ? "Medium"
+            : "Low";
     const atRisk = analytics
       .filter((m) => m.severity === "high" || m.severity === "critical")
       .reduce((s, m) => s + m.count, 0);
@@ -147,11 +163,27 @@ export default function TeacherAnalyticsPage() {
             />
             <span className="font-bold">SciSleuth</span>
           </Link>
-          <nav className="hidden gap-8 text-sm text-slate-400 md:flex">
-            <Link href="/results" className="hover:text-slate-100">Results</Link>
-            <Link href="/graph" className="hover:text-slate-100">Knowledge Graph</Link>
-            <span className="text-emerald-300">Analytics</span>
-          </nav>
+          <div className="flex items-center gap-4">
+  <nav className="hidden gap-8 text-sm text-slate-400 md:flex">
+    <Link href="/results" className="hover:text-slate-100">
+      Results
+    </Link>
+    <Link href="/graph" className="hover:text-slate-100">
+      Knowledge Graph
+    </Link>
+    <span className="text-emerald-300">
+      Analytics
+    </span>
+  </nav>
+
+  <button
+    onClick={handleLogout}
+    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+  >
+    <LogOut className="h-4 w-4" />
+    Logout
+  </button>
+</div>
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/10"
@@ -440,20 +472,20 @@ export default function TeacherAnalyticsPage() {
 
       {/* Footer */}
       <footer className="border-t border-white/10">
-                <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs text-white/50 md:flex-row">
-                  <div className="flex items-center gap-2">
-                    <Image
-                      src="/logo.jpg"
-                      alt="SciSleuth"
-                      width={32}
-                      height={32}
-                      className="rounded-md"
-                    />
-                    <span>SciSleuth · Built by Team SkyHi</span>
-                  </div>
-                  <p>Diagnose misconceptions, not mistakes.</p>
-                </div>
-              </footer>
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-8 text-xs text-white/50 md:flex-row">
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo.jpg"
+              alt="SciSleuth"
+              width={32}
+              height={32}
+              className="rounded-md"
+            />
+            <span>SciSleuth · Built by Team SkyHi</span>
+          </div>
+          <p>Diagnose misconceptions, not mistakes.</p>
+        </div>
+      </footer>
     </div>
   );
 }

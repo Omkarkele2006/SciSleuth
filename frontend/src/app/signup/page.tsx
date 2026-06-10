@@ -62,7 +62,7 @@ export default function SignupPage() {
       return;
     }
     setSuccess(
-      "Account created successfully! Please verify your email. After verification, click Start Diagnostic and sign in using the same email and password."
+      "Account created successfully! Please sign in using the same email and password."
     );
     setFullName("");
     setEmail("");
@@ -166,12 +166,12 @@ export default function SignupPage() {
                     {success}
                   </p>
 
-                  <div
-                    
+                  <Link
+                    href="/login"
                     className="mt-4 inline-flex rounded-lg bg-emerald-400 px-4 py-2 font-medium text-black hover:bg-emerald-300"
                   >
-                    Check your mailbox
-                  </div>
+                    Go to Login
+                  </Link>
                 </div>
               )}
               <form className="space-y-5" onSubmit={handleSubmit} noValidate>
