@@ -166,12 +166,12 @@ export default function SignupPage() {
                     {success}
                   </p>
 
-                  <Link
-                    href="/login"
+                  <div
+                    
                     className="mt-4 inline-flex rounded-lg bg-emerald-400 px-4 py-2 font-medium text-black hover:bg-emerald-300"
                   >
-                    Go to Login
-                  </Link>
+                    Check your mailbox
+                  </div>
                 </div>
               )}
               <form className="space-y-5" onSubmit={handleSubmit} noValidate>
