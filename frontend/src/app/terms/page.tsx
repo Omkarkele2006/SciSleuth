@@ -86,11 +86,11 @@ export default function TermsPage() {
     <div className="relative min-h-screen flex flex-col overflow-hidden bg-[#020817] text-white antialiased">
       {/* Ambient */}
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-40 left-1/2 h-[520px] w-[520px] -translate-x-1/2 rounded-full bg-emerald-500/15 blur-[140px]" />
-        <div className="absolute top-1/3 -right-32 h-[400px] w-[400px] rounded-full bg-teal-500/10 blur-[140px]" />
-        <div className="absolute bottom-0 -left-32 h-[400px] w-[400px] rounded-full bg-emerald-700/10 blur-[140px]" />
+        <div className="absolute -top-40 left-1/2 h-130 w-130 -translate-x-1/2 rounded-full bg-emerald-500/15 blur-[140px]" />
+        <div className="absolute top-1/3 -right-32 h-100 w-100 rounded-full bg-teal-500/10 blur-[140px]" />
+        <div className="absolute bottom-0 -left-32 h-100 w-100 rounded-full bg-emerald-700/10 blur-[140px]" />
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-3"
           style={{
             backgroundImage:
               "linear-gradient(to right, rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(to bottom, rgba(255,255,255,1) 1px, transparent 1px)",
@@ -130,14 +130,14 @@ export default function TermsPage() {
         </div>
 
         {/* Quick nav */}
-        <div className="mb-12 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-xl">
+        <div className="mb-12 overflow-hidden rounded-2xl border border-white/10 bg-white/3 p-6 backdrop-blur-xl">
           <p className="mb-4 text-xs uppercase tracking-[0.18em] text-white/40">Quick Navigation</p>
           <div className="flex flex-wrap gap-2">
             {sections.map((s) => (
               <a
                 key={s.title}
                 href={`#${s.title.toLowerCase().replace(/\s+/g, "-")}`}
-                className="rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white/60 transition hover:border-emerald-400/30 hover:text-emerald-300"
+                className="rounded-full border border-white/10 bg-white/4 px-3 py-1.5 text-xs text-white/60 transition hover:border-emerald-400/30 hover:text-emerald-300"
               >
                 {s.title}
               </a>
@@ -153,7 +153,7 @@ export default function TermsPage() {
               <div
                 key={section.title}
                 id={section.title.toLowerCase().replace(/\s+/g, "-")}
-                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-7 backdrop-blur-xl transition hover:border-emerald-400/20"
+                className="group overflow-hidden rounded-2xl border border-white/10 bg-white/3 p-7 backdrop-blur-xl transition hover:border-emerald-400/20"
               >
                 <div className="flex items-start gap-4">
                   <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-emerald-400/10 ring-1 ring-emerald-400/30">
@@ -175,7 +175,7 @@ export default function TermsPage() {
         </div>
 
         {/* Link to Privacy */}
-        <div className="mt-12 overflow-hidden rounded-2xl border border-emerald-400/20 bg-emerald-400/[0.04] p-6 text-center backdrop-blur-xl">
+        <div className="mt-12 overflow-hidden rounded-2xl border border-emerald-400/20 bg-emerald-400/4 p-6 text-center backdrop-blur-xl">
           <p className="text-sm text-white/60">
             Also read our{" "}
             <Link href="/privacy" className="font-medium text-emerald-400 transition hover:text-emerald-300">

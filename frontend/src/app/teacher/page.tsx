@@ -349,12 +349,7 @@ export default function TeacherAnalyticsPage() {
               Logout
             </button>
           </div>
-          <Link
-            href="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/10"
-          >
-            Exit cohort view
-          </Link>
+          
         </div>
       </header>
 

@@ -58,6 +58,7 @@ export default function DiagnosticPage() {
             misconception_count:
               misconceptions.length,
             misconceptions,
+            answers,
           });
       }
 
