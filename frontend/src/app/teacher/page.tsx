@@ -31,18 +31,7 @@ type AnalyticsItem = {
   count: number;
   severity: Severity;
 };
-
 // NOTE: existing analytics array — do not modify.
-const analytics: AnalyticsItem[] = [
-  { name: "Heavier objects fall faster", count: 18, severity: "high" },
-  { name: "Current is used up in a circuit", count: 14, severity: "critical" },
-  { name: "Seasons are caused by Earth's distance from the Sun", count: 11, severity: "medium" },
-  { name: "Plants get most of their mass from soil", count: 9, severity: "medium" },
-  { name: "Force is needed to keep an object moving", count: 7, severity: "high" },
-  { name: "Atoms are tiny solid balls", count: 4, severity: "low" },
-];
-
-const TOTAL_STUDENTS = 32;
 
 const severityWeight: Record<Severity, number> = {
   low: 1,
@@ -87,21 +76,127 @@ const severityStyles: Record<
 
 export default function TeacherAnalyticsPage() {
   const router = useRouter();
+  const [analytics, setAnalytics] =
+    useState<AnalyticsItem[]>([]);
+
+  const [totalStudents, setTotalStudents] =
+    useState(0);
+
+  const [loadingAnalytics, setLoadingAnalytics] =
+    useState(true);
   const handleLogout = async () => {
-  await supabase.auth.signOut();
-  router.push("/login");
-};
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        router.replace("/login");
+  supabase.auth.getUser().then(({ data }) => {
+    if (!data.user) {
+      router.replace("/login");
+      return;
+    }
+
+    if (
+      data.user.email !==
+      "omavkarkele@gmail.com"
+    ) {
+      router.replace("/");
+    }
+  });
+}, [router]);
+  useEffect(() => {
+    async function loadAnalytics() {
+      const { data, error } =
+        await supabase
+          .from("attempts")
+          .select("*");
+
+      if (error || !data) {
+        console.error(error);
+        return;
       }
-    });
-  }, [router]);
+
+      const users = new Set(
+        data.map(
+          (attempt) => attempt.user_id
+        )
+      );
+
+      setTotalStudents(users.size);
+
+      const misconceptionCounts:
+        Record<string, number> = {};
+
+      data.forEach((attempt) => {
+        attempt.misconceptions?.forEach(
+          (m: any) => {
+            misconceptionCounts[
+              m.name
+            ] =
+              (misconceptionCounts[
+                m.name
+              ] || 0) + 1;
+          }
+        );
+      });
+
+      const generatedAnalytics =
+        Object.entries(
+          misconceptionCounts
+        )
+          .map(
+            ([name, count]) => ({
+              name,
+              count,
+              severity:
+                count >= 10
+                  ? ("critical" as Severity)
+                  : count >= 7
+                    ? ("high" as Severity)
+                    : count >= 4
+                      ? ("medium" as Severity)
+                      : ("low" as Severity),
+            }))
+          .sort(
+            (a, b) =>
+              b.count - a.count
+          );
+
+      setAnalytics(
+        generatedAnalytics
+      );
+
+      setLoadingAnalytics(
+        false
+      );
+    }
+
+    loadAnalytics();
+  }, []);
+
   const stats = useMemo(() => {
-    const top = analytics.reduce((a, b) => (b.count > a.count ? b : a), analytics[0]);
+    if (analytics.length === 0) {
+      return {
+        top: {
+          name: "No data",
+          count: 0,
+          severity: "low" as Severity,
+        },
+        avgSeverityLabel: "Low",
+        atRisk: 0,
+        stability: 100,
+      };
+    }
+
+    const top = analytics.reduce(
+      (a, b) => (b.count > a.count ? b : a)
+    );
+
     const avgSeverityNum =
-      analytics.reduce((sum, m) => sum + severityWeight[m.severity], 0) / analytics.length;
+      analytics.reduce(
+        (sum, m) => sum + severityWeight[m.severity],
+        0
+      ) / analytics.length;
+
     const avgSeverityLabel =
       avgSeverityNum >= 3.25
         ? "Critical"
@@ -110,15 +205,32 @@ export default function TeacherAnalyticsPage() {
           : avgSeverityNum >= 1.75
             ? "Medium"
             : "Low";
+
     const atRisk = analytics
-      .filter((m) => m.severity === "high" || m.severity === "critical")
+      .filter(
+        (m) =>
+          m.severity === "high" ||
+          m.severity === "critical"
+      )
       .reduce((s, m) => s + m.count, 0);
+
     const stability = Math.max(
       0,
-      Math.min(100, Math.round(100 - (avgSeverityNum / 4) * 100))
+      Math.min(
+        100,
+        Math.round(
+          100 - (avgSeverityNum / 4) * 100
+        )
+      )
     );
-    return { top, avgSeverityLabel, atRisk, stability };
-  }, []);
+
+    return {
+      top,
+      avgSeverityLabel,
+      atRisk,
+      stability,
+    };
+  }, [analytics]);
 
   const distribution = useMemo(() => {
     const buckets: Record<Severity, number> = { low: 0, medium: 0, high: 0, critical: 0 };
@@ -130,6 +242,14 @@ export default function TeacherAnalyticsPage() {
       pct: Math.round((buckets[sev] / total) * 100),
     }));
   }, []);
+  if (loadingAnalytics) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        Loading Analytics...
+      </div>
+    );
+  }
+
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-[#020817] text-slate-100 antialiased">
@@ -164,26 +284,26 @@ export default function TeacherAnalyticsPage() {
             <span className="font-bold">SciSleuth</span>
           </Link>
           <div className="flex items-center gap-4">
-  <nav className="hidden gap-8 text-sm text-slate-400 md:flex">
-    <Link href="/results" className="hover:text-slate-100">
-      Results
-    </Link>
-    <Link href="/graph" className="hover:text-slate-100">
-      Knowledge Graph
-    </Link>
-    <span className="text-emerald-300">
-      Analytics
-    </span>
-  </nav>
+            <nav className="hidden gap-8 text-sm text-slate-400 md:flex">
+              <Link href="/results" className="hover:text-slate-100">
+                Results
+              </Link>
+              <Link href="/graph" className="hover:text-slate-100">
+                Knowledge Graph
+              </Link>
+              <span className="text-emerald-300">
+                Analytics
+              </span>
+            </nav>
 
-  <button
-    onClick={handleLogout}
-    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
-  >
-    <LogOut className="h-4 w-4" />
-    Logout
-  </button>
-</div>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-slate-200 hover:bg-white/10"
@@ -200,7 +320,7 @@ export default function TeacherAnalyticsPage() {
             <div className="max-w-2xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs text-emerald-200">
                 <GraduationCap className="h-3.5 w-3.5" />
-                Cohort overview · {TOTAL_STUDENTS} students
+                Cohort overview · {totalStudents} students
               </div>
               <h1 className="mt-6 text-5xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
                 Classroom <span className="bg-linear-to-r from-emerald-300 via-teal-200 to-emerald-400 bg-clip-text text-transparent italic">Intelligence</span>
@@ -242,7 +362,7 @@ export default function TeacherAnalyticsPage() {
             tone="emerald"
             label="Students at risk"
             value={`${stats.atRisk}`}
-            sub={`of ${TOTAL_STUDENTS} in this cohort`}
+            sub={`of ${totalStudents} in this cohort`}
           />
           <MetricCard
             icon={<ShieldAlert className="h-4 w-4" />}
@@ -263,7 +383,7 @@ export default function TeacherAnalyticsPage() {
 
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             {analytics.map((m) => {
-              const pct = Math.round((m.count / TOTAL_STUDENTS) * 100);
+              const pct = Math.round((m.count / totalStudents) * 100);
               const risk = Math.min(
                 100,
                 Math.round((severityWeight[m.severity] / 4) * 60 + pct * 0.4)
@@ -303,7 +423,7 @@ export default function TeacherAnalyticsPage() {
                         <span className="text-base text-slate-500">%</span>
                       </p>
                       <p className="mt-0.5 text-[11px] text-slate-500">
-                        {m.count} of {TOTAL_STUDENTS} students
+                        {m.count} of {totalStudents} students
                       </p>
                     </div>
                     <div>
