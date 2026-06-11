@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState } from "react";
+import { ADMIN_EMAILS } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import {
@@ -31,7 +32,6 @@ export default function LoginPage() {
         e: React.FormEvent
     ) => {
         e.preventDefault();
-        console.log("LOGIN CLICKED");
         setLoading(true);
 
         const { data, error } =
@@ -39,15 +39,29 @@ export default function LoginPage() {
                 email,
                 password,
             });
-        console.log("DATA:", data);
-        console.log("ERROR:", error);
+
         setLoading(false);
 
         if (error) {
             alert(error.message);
             return;
         }
-        router.replace("/diagnostic");
+
+        const ADMIN_EMAILS = [
+            "omavkarkele@gmail.com",
+        ];
+
+        const userEmail =
+            data.user?.email?.toLowerCase();
+
+        if (
+            userEmail &&
+            ADMIN_EMAILS.includes(userEmail)
+        ) {
+            router.replace("/teacher");
+        } else {
+            router.replace("/diagnostic");
+        }
     };
     return (
         <div className="relative min-h-screen overflow-hidden bg-[#06111f] text-slate-100 antialiased">

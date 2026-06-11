@@ -79,10 +79,47 @@ export default function TeacherAnalyticsPage() {
   const router = useRouter();
   const [analytics, setAnalytics] =
     useState<AnalyticsItem[]>([]);
-
+  const [insight, setInsight] =
+    useState("");
+  const [attempts, setAttempts] =
+    useState<any[]>([]);
   const [totalStudents, setTotalStudents] =
     useState(0);
+  const generateInsight =
+    async () => {
+      const averageHealth =
+        Math.round(
+          attempts.reduce(
+            (
+              sum: number,
+              a: any
+            ) => sum + a.graph_health,
+            0
+          ) / attempts.length
+        );
 
+      const response =
+        await fetch(
+          "/api/teacher-insight",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type":
+                "application/json",
+            },
+            body: JSON.stringify({
+              analytics,
+              totalStudents,
+              averageHealth,
+            }),
+          }
+        );
+
+      const data =
+        await response.json();
+
+      setInsight(data.insight);
+    };
   const [loadingAnalytics, setLoadingAnalytics] =
     useState(true);
   const handleLogout = async () => {
@@ -110,12 +147,13 @@ export default function TeacherAnalyticsPage() {
         await supabase
           .from("attempts")
           .select("*");
-
+      console.log("ATTEMPTS:", data);
+      console.log("ERROR:", error);
       if (error || !data) {
         console.error(error);
         return;
       }
-
+      setAttempts(data);
       const users = new Set(
         data.map(
           (attempt) => attempt.user_id
@@ -511,22 +549,20 @@ export default function TeacherAnalyticsPage() {
               </div>
               <div className="flex-1">
                 <p className="text-[11px] uppercase tracking-widest text-emerald-300">
-                  Gemini · Cohort synthesis
-                </p>
-                <h3 className="mt-2 text-2xl font-semibold tracking-tight text-slate-100">
-                  AI Classroom Insight
-                </h3>
-                <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-slate-300">
-                  The majority of misconceptions in this cohort originate from
-                  misunderstandings of <span className="text-emerald-200">Newtonian mechanics</span> —
-                  particularly the relationship between force, mass, and motion.
-                  This suggests foundational concept reinforcement is required
-                  before progressing to energy and circuits. Targeted recovery
-                  missions on <span className="text-emerald-200">{stats.top.name.toLowerCase()}</span> would
-                  unblock the highest number of students.
+                Gemini · Cohort synthesis</p>
+                <button
+                  onClick={generateInsight}
+                  className="rounded-full border mt-4 border-emerald-500/20 px-4 py-2 text-emerald-300 hover:bg-emerald-500/10 text-sm font-medium transition"
+                >
+                  Generate AI Insight
+                </button>
+
+                <p className="mt-4 text-slate-300">
+                  {insight ||
+                    "Generate AI classroom analysis using Gemini."}
                 </p>
 
-                <div className="mt-6 flex flex-wrap gap-2">
+                {/* <div className="mt-6 flex flex-wrap gap-2">
                   {["Newtonian mechanics", "Force ≠ motion", "Energy conservation", "Circuit flow"].map(
                     (tag) => (
                       <span
@@ -537,7 +573,7 @@ export default function TeacherAnalyticsPage() {
                       </span>
                     )
                   )}
-                </div>
+                </div> */}
               </div>
             </div>
           </div>
