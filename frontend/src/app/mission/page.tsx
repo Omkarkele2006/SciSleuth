@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { LogOut } from "lucide-react";
@@ -24,16 +25,16 @@ export default function MissionPage() {
   const [completed, setCompleted] = useState<Record<string, Record<number, boolean>>>({});
   const router = useRouter();
   const handleLogout = async () => {
-  await supabase.auth.signOut();
-  router.push("/login");
-};
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   useEffect(() => {
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) {
-      router.replace("/login");
-    }
-  });
-}, [router]);
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        router.replace("/login");
+      }
+    });
+  }, [router]);
   useEffect(() => {
     const stored = localStorage.getItem("misconceptions");
     if (!stored) return;
@@ -97,22 +98,28 @@ export default function MissionPage() {
               <span className="font-bold">SciSleuth</span>
             </Link>
             <div className="flex items-center gap-4">
-  <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
-    <span className="relative flex h-2 w-2">
-      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
-      <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
-    </span>
-    Repair Mission Active
-  </div>
-
-  <button
-    onClick={handleLogout}
-    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
-  >
-    <LogOut className="h-4 w-4" />
-    Logout
-  </button>
-</div>
+              <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-60" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
+                </span>
+                Repair Mission Active
+              </div>
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10"
+              >
+                <User className="h-4 w-4" />
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </header>
 
@@ -182,9 +189,8 @@ export default function MissionPage() {
                 Array.from({ length: STEPS_PER }).map((_, i) => (
                   <div
                     key={`${m.code}-${i}`}
-                    className={`h-1 flex-1 rounded-full transition-all ${
-                      completed[m.code]?.[i] ? "bg-emerald-400/70" : "bg-white/10"
-                    }`}
+                    className={`h-1 flex-1 rounded-full transition-all ${completed[m.code]?.[i] ? "bg-emerald-400/70" : "bg-white/10"
+                      }`}
                   />
                 ))
               )}
@@ -233,11 +239,10 @@ export default function MissionPage() {
               return (
                 <div
                   key={m.code}
-                  className={`relative overflow-hidden rounded-3xl border backdrop-blur-xl transition-all ${
-                    done
+                  className={`relative overflow-hidden rounded-3xl border backdrop-blur-xl transition-all ${done
                       ? "border-emerald-400/30 bg-emerald-400/4"
                       : "border-white/10 bg-white/3"
-                  }`}
+                    }`}
                 >
                   {/* Glow for active card */}
                   {!done && (
@@ -248,11 +253,10 @@ export default function MissionPage() {
                   <div className="relative flex items-start justify-between gap-4 p-6 md:p-8">
                     <div className="flex items-start gap-4">
                       <div
-                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-sm font-semibold transition-all ${
-                          done
+                        className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border text-sm font-semibold transition-all ${done
                             ? "border-emerald-400/40 bg-emerald-400/20 text-emerald-200"
                             : "border-white/10 bg-white/4 text-white/60"
-                        }`}
+                          }`}
                       >
                         {done ? (
                           <CheckCircle2 className="h-5 w-5 text-emerald-400" />
@@ -264,11 +268,10 @@ export default function MissionPage() {
                         <div className="flex flex-wrap items-center gap-2">
                           <h2 className="text-xl font-semibold tracking-tight">{m.name}</h2>
                           <span
-                            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${
-                              done
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-medium ring-1 ${done
                                 ? "bg-emerald-500/10 text-emerald-300 ring-emerald-400/30"
                                 : "bg-amber-500/10 text-amber-300 ring-amber-400/30"
-                            }`}
+                              }`}
                           >
                             {done ? "Complete" : `${stepsCompleted}/${STEPS_PER} steps`}
                           </span>
@@ -286,11 +289,10 @@ export default function MissionPage() {
                       {Array.from({ length: STEPS_PER }).map((_, i) => (
                         <div
                           key={i}
-                          className={`h-2 w-2 rounded-full transition-all ${
-                            completed[m.code]?.[i]
+                          className={`h-2 w-2 rounded-full transition-all ${completed[m.code]?.[i]
                               ? "bg-emerald-400"
                               : "bg-white/15"
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>
@@ -306,19 +308,17 @@ export default function MissionPage() {
                           <button
                             key={sIdx}
                             onClick={() => toggleStep(m.code, sIdx)}
-                            className={`group relative flex w-full items-start gap-4 overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${
-                              isChecked
+                            className={`group relative flex w-full items-start gap-4 overflow-hidden rounded-2xl border p-5 text-left transition-all duration-300 ${isChecked
                                 ? "border-emerald-400/30 bg-emerald-400/6 shadow-[0_0_20px_rgba(16,185,129,0.12)]"
                                 : "border-white/10 bg-white/2 hover:border-white/20 hover:bg-white/4"
-                            }`}
+                              }`}
                           >
                             {/* Step number / check */}
                             <div
-                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-semibold transition-all ${
-                                isChecked
+                              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-sm font-semibold transition-all ${isChecked
                                   ? "border-emerald-400/50 bg-emerald-400/20 text-emerald-200"
                                   : "border-white/10 bg-white/4 text-white/50 group-hover:border-white/20 group-hover:text-white/70"
-                              }`}
+                                }`}
                             >
                               {isChecked ? (
                                 <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -329,9 +329,8 @@ export default function MissionPage() {
 
                             <div className="flex-1 min-w-0">
                               <div
-                                className={`text-sm font-medium leading-snug ${
-                                  isChecked ? "text-emerald-200 line-through decoration-emerald-400/40" : "text-white/90"
-                                }`}
+                                className={`text-sm font-medium leading-snug ${isChecked ? "text-emerald-200 line-through decoration-emerald-400/40" : "text-white/90"
+                                  }`}
                               >
                                 {step.label}
                               </div>
@@ -342,11 +341,10 @@ export default function MissionPage() {
 
                             {/* Checkmark indicator */}
                             <div
-                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all ${
-                                isChecked
+                              className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border transition-all ${isChecked
                                   ? "border-emerald-300 bg-emerald-400/80 text-[#020817]"
                                   : "border-white/15 bg-transparent text-transparent"
-                              }`}
+                                }`}
                             >
                               <svg
                                 width="14"
@@ -379,11 +377,10 @@ export default function MissionPage() {
             </Link>
             <Link
               href="/recover"
-              className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl px-7 py-4 text-sm font-semibold transition-all ${
-                allDone
+              className={`group relative inline-flex items-center justify-center gap-2 overflow-hidden rounded-2xl px-7 py-4 text-sm font-semibold transition-all ${allDone
                   ? "bg-linear-to-r from-emerald-400 to-teal-300 text-[#02201a] shadow-[0_0_40px_rgba(16,185,129,0.35)] hover:shadow-[0_0_60px_rgba(16,185,129,0.55)]"
                   : "cursor-not-allowed bg-white/6 text-white/30"
-              }`}
+                }`}
               onClick={(e) => { if (!allDone) e.preventDefault(); }}
               aria-disabled={!allDone}
             >

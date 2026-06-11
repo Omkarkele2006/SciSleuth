@@ -2,6 +2,7 @@
 
 import React, { useMemo } from "react";
 import Link from "next/link";
+import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
@@ -89,20 +90,20 @@ export default function TeacherAnalyticsPage() {
     router.push("/login");
   };
   useEffect(() => {
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) {
-      router.replace("/login");
-      return;
-    }
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        router.replace("/login");
+        return;
+      }
 
-    if (
-      data.user.email !==
-      "omavkarkele@gmail.com"
-    ) {
-      router.replace("/");
-    }
-  });
-}, [router]);
+      if (
+        data.user.email !==
+        "omavkarkele@gmail.com"
+      ) {
+        router.replace("/");
+      }
+    });
+  }, [router]);
   useEffect(() => {
     async function loadAnalytics() {
       const { data, error } =
@@ -295,7 +296,13 @@ export default function TeacherAnalyticsPage() {
                 Analytics
               </span>
             </nav>
-
+            <Link
+              href="/profile"
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10"
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Link>
             <button
               onClick={handleLogout}
               className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"

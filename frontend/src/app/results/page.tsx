@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useEffect } from "react";
+import { User } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
@@ -52,9 +53,9 @@ export default function ResultsPage() {
   const [open, setOpen] = useState<string | null>(null);
   const router = useRouter();
   const handleLogout = async () => {
-  await supabase.auth.signOut();
-  router.push("/login");
-};
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   const [loadingCode, setLoadingCode] =
     useState<string | null>(null);
   const graphHealth = Math.round(
@@ -168,12 +169,12 @@ export default function ResultsPage() {
     },
   ];
   useEffect(() => {
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) {
-      router.replace("/login");
-    }
-  });
-}, [router]);
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        router.replace("/login");
+      }
+    });
+  }, [router]);
   return (
     <div className="relative min-h-screen overflow-hidden bg-[oklch(0.16_0.018_265)] text-[oklch(0.97_0.005_250)] font-sans antialiased">
       {/* Ambient gradients — matches page.tsx */}
@@ -211,18 +212,24 @@ export default function ResultsPage() {
             <span className="font-bold">SciSleuth</span>
           </Link>
           <div className="flex items-center gap-4">
-  <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60 backdrop-blur">
-    Diagnostic Report
-  </span>
-
-  <button
-    onClick={handleLogout}
-    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
-  >
-    <LogOut className="h-4 w-4" />
-    Logout
-  </button>
-</div>
+            <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 text-xs text-white/60 backdrop-blur">
+              Diagnostic Report
+            </span>
+            <Link
+              href="/profile"
+              className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10"
+            >
+              <User className="h-4 w-4" />
+              Profile
+            </Link>
+            <button
+              onClick={handleLogout}
+              className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </button>
+          </div>
         </div>
       </header>
 
@@ -527,10 +534,10 @@ export default function ResultsPage() {
 
                             <button className="mt-6 inline-flex items-center gap-2 rounded-full bg-emerald-400 px-5 py-2.5 text-sm font-medium text-[oklch(0.16_0.02_265)] shadow-[0_0_60px_-10px_oklch(0.78_0.17_165/0.35)] transition hover:opacity-90">
                               <Link
-  href="/mission"
->
-  Start Repair Mission
-</Link>
+                                href="/mission"
+                              >
+                                Start Repair Mission
+                              </Link>
                               <ArrowRight className="h-4 w-4" />
                             </button>
                           </div>

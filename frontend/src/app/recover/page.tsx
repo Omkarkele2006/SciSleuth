@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { User } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -26,16 +27,16 @@ export default function RecoverPage() {
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
   const router = useRouter();
   const handleLogout = async () => {
-  await supabase.auth.signOut();
-  router.push("/login");
-};
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
   useEffect(() => {
-  supabase.auth.getUser().then(({ data }) => {
-    if (!data.user) {
-      router.replace("/login");
-    }
-  });
-}, [router]);
+    supabase.auth.getUser().then(({ data }) => {
+      if (!data.user) {
+        router.replace("/login");
+      }
+    });
+  }, [router]);
   useEffect(() => {
     const stored = localStorage.getItem("misconceptions");
     if (!stored) return;
@@ -54,9 +55,9 @@ export default function RecoverPage() {
 
   const stages = [
     { label: "Diagnose", icon: Microscope },
-    { label: "Explain",  icon: Brain     },
-    { label: "Repair",   icon: Wrench    },
-    { label: "Recover",  icon: Sparkles  },
+    { label: "Explain", icon: Brain },
+    { label: "Repair", icon: Wrench },
+    { label: "Recover", icon: Sparkles },
   ];
 
   return (
@@ -85,19 +86,26 @@ export default function RecoverPage() {
               <span className="font-bold">SciSleuth</span>
             </Link>
             <div className="flex items-center gap-4">
-  <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
-    <CheckCircle2 className="h-3.5 w-3.5" />
-    Recovery Complete
-  </div>
+              <div className="hidden items-center gap-2 rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1.5 text-xs text-emerald-300 md:flex">
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                Recovery Complete
+              </div>
 
-  <button
-    onClick={handleLogout}
-    className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
-  >
-    <LogOut className="h-4 w-4" />
-    Logout
-  </button>
-</div>
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10"
+              >
+                <User className="h-4 w-4" />
+                Profile
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 rounded-full border border-red-500/20 px-4 py-2 text-sm text-red-300 hover:bg-red-500/10"
+              >
+                <LogOut className="h-4 w-4" />
+                Logout
+              </button>
+            </div>
           </div>
         </header>
 
@@ -203,7 +211,7 @@ export default function RecoverPage() {
                   <div className="mt-8 space-y-4">
                     {[
                       { label: "Graph Health Before", value: healthBefore, tone: "rose" },
-                      { label: "Graph Health After",  value: healthAfter,  tone: "emerald" },
+                      { label: "Graph Health After", value: healthAfter, tone: "emerald" },
                     ].map((bar) => (
                       <div key={bar.label}>
                         <div className="flex items-center justify-between text-sm">
@@ -265,9 +273,9 @@ export default function RecoverPage() {
 
                   <div className="mt-6 space-y-3 w-full text-sm">
                     {[
-                      { label: "Concepts repaired",       value: `${repaired}` },
+                      { label: "Concepts repaired", value: `${repaired}` },
                       { label: "Remaining weak concepts", value: `${Math.max(0, remaining)}` },
-                      { label: "Diagnostic topic",        value: "Newton's Laws" },
+                      { label: "Diagnostic topic", value: "Newton's Laws" },
                     ].map((row) => (
                       <div
                         key={row.label}
@@ -299,9 +307,9 @@ export default function RecoverPage() {
               <div className="space-y-3">
                 {[
                   { label: "Misconceptions detected", value: `${brokenBefore}` },
-                  { label: "Graph health",            value: `${healthBefore}%` },
-                  { label: "Concept network",         value: "Weak"             },
-                  { label: "Understanding",           value: "Incomplete"       },
+                  { label: "Graph health", value: `${healthBefore}%` },
+                  { label: "Concept network", value: "Weak" },
+                  { label: "Understanding", value: "Incomplete" },
                 ].map((row) => (
                   <div
                     key={row.label}
@@ -327,10 +335,10 @@ export default function RecoverPage() {
               </div>
               <div className="space-y-3">
                 {[
-                  { label: "Concepts repaired",   value: `${repaired}`    },
-                  { label: "Graph health",         value: `${healthAfter}%` },
-                  { label: "Concept network",      value: "Strengthened"   },
-                  { label: "Understanding",        value: "Improved"        },
+                  { label: "Concepts repaired", value: `${repaired}` },
+                  { label: "Graph health", value: `${healthAfter}%` },
+                  { label: "Concept network", value: "Strengthened" },
+                  { label: "Understanding", value: "Improved" },
                 ].map((row) => (
                   <div
                     key={row.label}
@@ -371,9 +379,9 @@ export default function RecoverPage() {
                   </p>
                   <div className="mt-6 grid grid-cols-3 gap-3">
                     {[
-                      { label: "Broken before", value: `${brokenBefore}`, color: "text-rose-300"    },
-                      { label: "Broken now",    value: `${Math.max(0, remaining)}`, color: "text-amber-300"  },
-                      { label: "Health gain",   value: `+${healthAfter - healthBefore}%`, color: "text-emerald-300" },
+                      { label: "Broken before", value: `${brokenBefore}`, color: "text-rose-300" },
+                      { label: "Broken now", value: `${Math.max(0, remaining)}`, color: "text-amber-300" },
+                      { label: "Health gain", value: `+${healthAfter - healthBefore}%`, color: "text-emerald-300" },
                     ].map((stat) => (
                       <div
                         key={stat.label}
@@ -505,10 +513,10 @@ function GraphPreview({
   total: number;
 }) {
   const nodes = [
-    { cx: 50,  cy: 50,  r: 10 },
-    { cx: 140, cy: 30,  r: 7  },
-    { cx: 220, cy: 70,  r: 9  },
-    { cx: 100, cy: 130, r: 8  },
+    { cx: 50, cy: 50, r: 10 },
+    { cx: 140, cy: 30, r: 7 },
+    { cx: 220, cy: 70, r: 9 },
+    { cx: 100, cy: 130, r: 8 },
     { cx: 200, cy: 160, r: 11 },
   ];
   const edges = [
