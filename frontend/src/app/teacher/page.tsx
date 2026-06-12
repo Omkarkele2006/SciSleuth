@@ -83,6 +83,8 @@ export default function TeacherAnalyticsPage() {
     useState("");
   const [attempts, setAttempts] =
     useState<any[]>([]);
+  const [studentStats, setStudentStats] =
+    useState<any[]>([]);
   const [totalStudents, setTotalStudents] =
     useState(0);
   const generateInsight =
@@ -154,6 +156,77 @@ export default function TeacherAnalyticsPage() {
         return;
       }
       setAttempts(data);
+      const { data: profiles } =
+        await supabase
+          .from("profiles")
+          .select("*");
+
+      const profileMap = Object.fromEntries(
+        (profiles || []).map((p) => [
+          p.id,
+          p.full_name,
+        ])
+      );
+
+      const studentMap: Record<
+        string,
+        {
+          userId: string;
+          fullName: string;
+          attempts: number;
+          totalHealth: number;
+          bestHealth: number;
+          worstHealth: number;
+        }
+      > = {};
+
+      data.forEach((attempt) => {
+        const userId = attempt.user_id;
+
+        if (!studentMap[userId]) {
+          studentMap[userId] = {
+            userId,
+            fullName:
+              profileMap[userId] ||
+              "Unknown Student",
+            attempts: 0,
+            totalHealth: 0,
+            bestHealth:
+              attempt.graph_health,
+            worstHealth:
+              attempt.graph_health,
+          };
+        }
+
+        studentMap[userId].attempts++;
+
+        studentMap[userId].totalHealth +=
+          attempt.graph_health;
+
+        studentMap[userId].bestHealth =
+          Math.max(
+            studentMap[userId].bestHealth,
+            attempt.graph_health
+          );
+
+        studentMap[userId].worstHealth =
+          Math.min(
+            studentMap[userId].worstHealth,
+            attempt.graph_health
+          );
+      });
+
+      const students = Object.values(
+        studentMap
+      ).map((student) => ({
+        ...student,
+        averageHealth: Math.round(
+          student.totalHealth /
+          student.attempts
+        ),
+      }));
+
+      setStudentStats(students);
       const users = new Set(
         data.map(
           (attempt) => attempt.user_id
@@ -187,11 +260,11 @@ export default function TeacherAnalyticsPage() {
               name,
               count,
               severity:
-                count >= 10
+                count >= 5
                   ? ("critical" as Severity)
-                  : count >= 7
+                  : count >= 4
                     ? ("high" as Severity)
-                    : count >= 4
+                    : count >= 2
                       ? ("medium" as Severity)
                       : ("low" as Severity),
             }))
@@ -280,7 +353,7 @@ export default function TeacherAnalyticsPage() {
       count: buckets[sev],
       pct: Math.round((buckets[sev] / total) * 100),
     }));
-  }, []);
+  }, [analytics]);
   if (loadingAnalytics) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -324,18 +397,18 @@ export default function TeacherAnalyticsPage() {
           </Link>
           <div className="flex items-center gap-4">
             <nav className="hidden gap-8 text-sm text-slate-400 md:flex">
-              <Link href="/results" className="hover:text-slate-100">
+              <Link href="#student-performance" className="hover:text-slate-100">
                 Results
               </Link>
-              <Link href="/graph" className="hover:text-slate-100">
+              {/* <Link href="/graph" className="hover:text-slate-100">
                 Knowledge Graph
-              </Link>
-              <span className="text-emerald-300">
+              </Link> */}
+              {/* <span className="text-emerald-300">
                 Analytics
-              </span>
+              </span> */}
             </nav>
             <Link
-              href="/profile"
+              href="/teacher/profile"
               className="inline-flex items-center gap-2 rounded-full border border-emerald-500/20 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10"
             >
               <User className="h-4 w-4" />
@@ -349,7 +422,7 @@ export default function TeacherAnalyticsPage() {
               Logout
             </button>
           </div>
-          
+
         </div>
       </header>
 
@@ -531,7 +604,62 @@ export default function TeacherAnalyticsPage() {
             </div>
           </div>
         </section>
+        <div className="mt-10 rounded-3xl border border-white/10 bg-white/5 p-8">
 
+          <h2 className="mb-6 text-3xl font-bold" id="student-performance">
+            Student Performance Overview
+          </h2>
+
+          <div className="space-y-4">
+
+            {studentStats.map(
+              (student) => (
+                <div
+                  key={student.userId}
+                  className="flex items-center justify-between rounded-2xl border border-white/10 p-5"
+                >
+                  <div>
+                    <h3 className="font-semibold text-lg">
+                      {student.fullName}
+                    </h3>
+
+                    <p className="text-slate-400">
+                      Attempts: {student.attempts}
+                    </p>
+                  </div>
+
+                  <div className="text-right">
+                    <p>
+                      Avg Health:
+                      <span className="ml-2 text-emerald-400">
+                        {student.averageHealth}%
+                      </span>
+                    </p>
+
+                    <p className="text-slate-400">
+                      Worst:
+                      {" "}
+                      {student.worstHealth}%
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() =>
+                      router.push(
+                        `/teacher/student/${student.userId}`
+                      )
+                    }
+                    className="rounded-full border border-emerald-500/20 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-500/10"
+                  >
+                    View Attempts
+                  </button>
+                </div>
+              )
+            )}
+
+          </div>
+
+        </div>
         {/* SECTION 5 — AI Insight */}
         <section className="mt-20">
           <div className="relative overflow-hidden rounded-3xl border border-emerald-400/20 bg-linear-to-br from-emerald-400/8 via-white/2 to-teal-400/5 p-10 backdrop-blur-xl">
@@ -544,7 +672,7 @@ export default function TeacherAnalyticsPage() {
               </div>
               <div className="flex-1">
                 <p className="text-[11px] uppercase tracking-widest text-emerald-300">
-                Gemini · Cohort synthesis</p>
+                  Gemini · Cohort synthesis</p>
                 <button
                   onClick={generateInsight}
                   className="rounded-full border mt-4 border-emerald-500/20 px-4 py-2 text-emerald-300 hover:bg-emerald-500/10 text-sm font-medium transition"
@@ -588,37 +716,51 @@ export default function TeacherAnalyticsPage() {
               title="Concept reinforcement"
               body="Re-teach Newton's first law using contrast cases that target the 'force keeps things moving' misconception."
               tag="High impact"
+              onClick={() =>
+                router.push("/mission")
+              }
             />
             <InterventionCard
               icon={<Target className="h-4 w-4" />}
               title="Targeted recovery missions"
               body={`Auto-assign micro-missions to the ${stats.atRisk} students flagged as high or critical severity.`}
               tag="Personalized"
+              onClick={() => {
+                document
+                  .getElementById(
+                    "student-performance"
+                  )
+                  ?.scrollIntoView({
+                    behavior: "smooth",
+                  });
+              }}
             />
             <InterventionCard
               icon={<Users className="h-4 w-4" />}
               title="Peer learning sessions"
               body="Pair students with conflicting mental models so they surface and resolve each other's misconceptions."
               tag="Discussion-based"
+              onClick={() =>
+                alert(
+                  "Students with similar misconceptions should be grouped together for discussion."
+                )
+              }
             />
             <InterventionCard
               icon={<Network className="h-4 w-4" />}
               title="Knowledge graph review"
               body="Walk the class through the broken concepts on the shared knowledge graph to repair foundational links."
               tag="Whole class"
+              onClick={() =>
+                router.push("/graph")
+              }
             />
           </div>
 
           <div className="mt-10 flex flex-wrap justify-center gap-3">
+
             <Link
-              href="/graph"
-              className="group inline-flex items-center gap-2 rounded-full bg-emerald-400 px-6 py-3 text-sm font-medium text-[#02110a] shadow-[0_0_50px_-12px_rgba(16,185,129,0.7)] transition hover:translate-y-px hover:bg-emerald-300"
-            >
-              Open knowledge graph
-              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
-            </Link>
-            <Link
-              href="/results"
+              href="#student-performance"
               className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-6 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10"
             >
               <LineChart className="h-4 w-4" />
@@ -716,14 +858,16 @@ function InterventionCard({
   title,
   body,
   tag,
+  onClick,
 }: {
   icon: React.ReactNode;
   title: string;
   body: string;
   tag: string;
+  onClick: () => void;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/3 p-6 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-emerald-400/30">
+    <div onClick={onClick} className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/3 p-6 backdrop-blur-xl transition hover:-translate-y-0.5 hover:border-emerald-400/30">
       <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-emerald-400/10 opacity-0 blur-3xl transition group-hover:opacity-100" />
       <div className="flex items-center justify-between">
         <div className="grid h-9 w-9 place-items-center rounded-lg bg-emerald-400/10 text-emerald-300 ring-1 ring-emerald-400/30">
