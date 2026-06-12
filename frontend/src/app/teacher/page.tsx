@@ -87,6 +87,14 @@ export default function TeacherAnalyticsPage() {
     useState<any[]>([]);
   const [totalStudents, setTotalStudents] =
     useState(0);
+  const [selectedIntervention, setSelectedIntervention] = useState<{
+    title: string;
+    misconception: string;
+    severity: string;
+    action: string;
+    activity: string;
+    affectedCount: number;
+  } | null>(null);
   const generateInsight =
     async () => {
       const averageHealth =
@@ -720,44 +728,56 @@ export default function TeacherAnalyticsPage() {
               title="Concept reinforcement"
               body="Re-teach Newton's first law using contrast cases that target the 'force keeps things moving' misconception."
               tag="High impact"
-              onClick={() =>
-                router.push("/mission")
-              }
+              onClick={() => setSelectedIntervention({
+                title: "Concept reinforcement",
+                misconception: stats.top.name || "Force keeps things moving",
+                severity: stats.top.severity || "high",
+                action: "Re-teach concept using contrast cases and net force demonstrations.",
+                activity: "Interactive class discussion with visual mechanics modeling.",
+                affectedCount: stats.top.count || 0
+              })}
             />
             <InterventionCard
               icon={<Target className="h-4 w-4" />}
               title="Targeted recovery missions"
               body={`Auto-assign micro-missions to the ${stats.atRisk} students flagged as high or critical severity.`}
               tag="Personalized"
-              onClick={() => {
-                document
-                  .getElementById(
-                    "student-performance"
-                  )
-                  ?.scrollIntoView({
-                    behavior: "smooth",
-                  });
-              }}
+              onClick={() => setSelectedIntervention({
+                title: "Targeted recovery missions",
+                misconception: stats.top.name || "Balanced Forces Mean Rest",
+                severity: "High/Critical",
+                action: "Automatically assign micro-missions to students flagged with high or critical misconception severity.",
+                activity: "Assign the SciSleuth repair pathway checkoff tasks.",
+                affectedCount: stats.atRisk
+              })}
             />
             <InterventionCard
               icon={<Users className="h-4 w-4" />}
               title="Peer learning sessions"
               body="Pair students with conflicting mental models so they surface and resolve each other's misconceptions."
               tag="Discussion-based"
-              onClick={() =>
-                alert(
-                  "Students with similar misconceptions should be grouped together for discussion."
-                )
-              }
+              onClick={() => setSelectedIntervention({
+                title: "Peer learning sessions",
+                misconception: "Conflicting Force Theories (Force keeps objects moving vs Inertia)",
+                severity: "Medium",
+                action: "Pair students with conflicting answers to promote reasoning and conceptual debate.",
+                activity: "Facilitate structured peer discussion worksheets.",
+                affectedCount: totalStudents
+              })}
             />
             <InterventionCard
               icon={<Network className="h-4 w-4" />}
               title="Knowledge graph review"
               body="Walk the class through the broken concepts on the shared knowledge graph to repair foundational links."
               tag="Whole class"
-              onClick={() =>
-                router.push("/graph")
-              }
+              onClick={() => setSelectedIntervention({
+                title: "Knowledge graph review",
+                misconception: stats.top.name || "Newton's Third Law Reaction Gaps",
+                severity: stats.top.severity || "medium",
+                action: "Project the active classroom knowledge graph and review the broken concept links.",
+                activity: "Whole class step-through of conceptual connections.",
+                affectedCount: totalStudents
+              })}
             />
           </div>
 
@@ -790,6 +810,53 @@ export default function TeacherAnalyticsPage() {
           <p>Diagnose misconceptions, not mistakes.</p>
         </div>
       </footer>
+      {selectedIntervention && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#020817]/80 backdrop-blur-sm p-4">
+          <div className="relative w-full max-w-md overflow-hidden rounded-3xl border border-emerald-500/20 bg-[#0b1528] p-8 text-slate-100 shadow-2xl shadow-emerald-500/10 animate-in fade-in zoom-in-95 duration-200">
+            <div className="absolute -top-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl pointer-events-none" />
+            <div className="relative">
+              <span className="rounded-full border border-emerald-400/20 bg-emerald-400/5 px-3 py-1 text-xs font-medium text-emerald-300">
+                Intervention Plan Generated
+              </span>
+              <h3 className="mt-4 text-2xl font-bold tracking-tight text-white">
+                {selectedIntervention.title}
+              </h3>
+              <div className="mt-6 space-y-4 text-sm">
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-slate-500">Target Misconception</span>
+                  <p className="mt-1 font-medium text-slate-200">{selectedIntervention.misconception}</p>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-slate-500">Severity Level</span>
+                    <p className="mt-1 font-medium text-amber-300 capitalize">{selectedIntervention.severity}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-slate-500">Affected Students</span>
+                    <p className="mt-1 font-mono text-lg font-bold text-white">{selectedIntervention.affectedCount} student(s)</p>
+                  </div>
+                </div>
+                <div className="border-t border-white/5 pt-4">
+                  <span className="text-xs uppercase tracking-wider text-slate-500">Recommended Action</span>
+                  <p className="mt-1 text-slate-300 leading-relaxed">{selectedIntervention.action}</p>
+                </div>
+                <div>
+                  <span className="text-xs uppercase tracking-wider text-slate-500">Suggested Activity</span>
+                  <p className="mt-1 text-slate-300 leading-relaxed">{selectedIntervention.activity}</p>
+                </div>
+              </div>
+              <div className="mt-8 flex justify-end">
+                <button
+                  onClick={() => setSelectedIntervention(null)}
+                  className="rounded-xl bg-emerald-400 px-6 py-2.5 text-sm font-semibold text-[#021520] hover:bg-emerald-300 transition"
+                >
+                  Close Dialog
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
