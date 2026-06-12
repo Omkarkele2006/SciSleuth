@@ -43,6 +43,18 @@ export default function TeacherStudentPage() {
 
     useEffect(() => {
         async function loadData() {
+            const { data: { user } } = await supabase.auth.getUser();
+
+            if (!user) {
+                router.replace("/login");
+                return;
+            }
+
+            if (user.email !== "omavkarkele@gmail.com") {
+                router.replace("/");
+                return;
+            }
+
             const userId =
                 params.id as string;
 
@@ -79,7 +91,7 @@ export default function TeacherStudentPage() {
         }
 
         loadData();
-    }, [params.id]);
+    }, [params.id, router]);
 
     if (loading) {
         return (
