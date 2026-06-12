@@ -125,6 +125,10 @@ export default function TeacherAnalyticsPage() {
   const [loadingAnalytics, setLoadingAnalytics] =
     useState(true);
   const handleLogout = async () => {
+    localStorage.removeItem("misconceptions");
+    localStorage.removeItem("original_misconceptions");
+    localStorage.removeItem("latest_attempt_id");
+    localStorage.removeItem("recovery_authorized");
     await supabase.auth.signOut();
     router.push("/login");
   };

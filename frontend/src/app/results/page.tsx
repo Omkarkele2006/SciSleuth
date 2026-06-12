@@ -53,6 +53,10 @@ export default function ResultsPage() {
   const [open, setOpen] = useState<string | null>(null);
   const router = useRouter();
   const handleLogout = async () => {
+    localStorage.removeItem("misconceptions");
+    localStorage.removeItem("original_misconceptions");
+    localStorage.removeItem("latest_attempt_id");
+    localStorage.removeItem("recovery_authorized");
     await supabase.auth.signOut();
     router.push("/login");
   };
