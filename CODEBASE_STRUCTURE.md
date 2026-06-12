@@ -1,486 +1,916 @@
-# SciSleuth Codebase Structure & Function Map
+SciSleuth Architecture & Quality Assurance Audit Report
 
-## Folder Tree
+This report documents a comprehensive architectural and state-flow audit of SciSleuth (AI Misconception Detective). It identifies critical state-management bugs, lifecycle flows, navigation issues, and security inconsistencies that present major demo risks for a hackathon.
 
-```
-SciSleuth/
-├── README.md
-├── CODEBASE_STRUCTURE.md (this file)
-├── .git/
-├── .gitignore
-├── node_modules/
-└── frontend/
-    ├── package.json
-    ├── package-lock.json
-    ├── tsconfig.json
-    ├── next.config.ts
-    ├── postcss.config.mjs
-    ├── tailwind.config.ts
-    ├── eslint.config.mjs
-    ├── next-env.d.ts
-    │
-    └── src/
-        ├── app/
-        │   ├── layout.tsx
-        │   ├── page.tsx
-        │   ├── globals.css
-        │   ├── favicon.ico
-        │   ├── logo.jpg
-        │   │
-        │   ├── api/
-        │   │   └── explain/
-        │   │       └── route.ts
-        │   │
-        │   ├── diagnostic/
-        │   │   └── page.tsx
-        │   │
-        │   ├── results/
-        │   │   └── page.tsx
-        │   │
-        │   ├── graph/
-        │   │   └── page.tsx
-        │   │
-        │   └── teacher/
-        │       └── page.tsx
-        │
-        ├── components/
-        │   ├── QuestionCard.tsx
-        │   └── GraphCanvas.tsx
-        │
-        ├── data/
-        │   ├── questions.ts
-        │   ├── misconceptions.ts
-        │   ├── repairs.ts
-        │   └── graph.ts
-        │
-        ├── lib/
-        │   ├── evaluateDiagnostic.ts
-        │   ├── evaluateGraphHealth.ts
-        │   ├── buildExplanationPrompt.ts
-        │   └── getNodeMisconceptions.ts
-        │
-        └── types/
-            ├── question.ts
-            ├── misconception.ts
-            ├── repair.ts
-            ├── graph.ts
-            └── aiExplanation.ts
-```
+1. Route Inventory
 
----
+Below is an inventory of every active route in the SciSleuth codebase, listing inputs, outputs, data sources, localStorage usage, Supabase usage, and navigation logic.
 
-## File-by-File Breakdown with Functions
+🌐 Page Routes
 
-### 📄 ROOT LEVEL
+1. Home / Landing Page (/)
 
-#### `package.json`
-- **Purpose**: Project metadata and dependencies
-- **Key Dependencies**:
-  - `next@16.2.7` - React framework
-  - `react@19.2.4` - UI library
-  - `@google/genai@2.8.0` - Gemini API SDK
-  - `tailwindcss@4` - Styling
-  - `d3@7.9.0` - Data visualization (unused)
+File Location: page.tsx
 
----
+Inputs: None (Static URL).
 
-### 🏗️ APPLICATION PAGES (`src/app/`)
+Outputs: Marketing copy, hero diagnostics demo visual, feature descriptions, CTA buttons.
 
-#### `layout.tsx`
-- **Purpose**: Root layout wrapper for all pages
-- **Key Functions**:
-  - `RootLayout()` - Wraps entire app, sets up fonts, applies global styling
-  - Imports Geist fonts from Google Fonts
-  - Sets metadata title: "SciSleuth"
+Data Source: Static JSX code.
 
-#### `page.tsx` (Landing Page)
-- **Purpose**: Hero landing page with CTA button
-- **Key Functions**:
-  - `Page()` - Renders landing page with gradient backgrounds
-  - Displays "SciSleuth" hero with project description
-  - Shows features grid (Diagnostic, Detection, Graph, Analytics)
-  - Links to `/diagnostic` route with "Start Diagnostic" button
-  - Uses radial gradients and ambient glows for visual appeal
+LocalStorage Usage: None.
 
-#### `globals.css`
-- **Purpose**: Global styling and theme variables
-- **Content**:
-  - Tailwind CSS imports
-  - Dark mode color scheme
-  - Root CSS variables for colors and fonts
-  - Grid background pattern
+Supabase Usage: None.
 
----
+Navigation Destinations:
 
-### 🔄 DIAGNOSTIC FLOW (`src/app/diagnostic/`)
+/login (via "Start Diagnostic" CTAs).
 
-#### `diagnostic/page.tsx`
-- **Purpose**: Question navigation and answer collection
-- **Key Functions**:
-  - `DiagnosticPage()` - Main component managing diagnostic flow
-  - `handleNext()` - Navigate to next question or finish
-  - `handleSelectAnswer(optionIndex)` - Save selected answer
-  - **State**:
-    - `currentQuestionIndex` - Track which question user is on
-    - `answers` - Record<number, number> mapping question ID to option index
-  - **Logic Flow**:
-    1. Load current question from questions array
-    2. Display QuestionCard component
-    3. On "Next": Move to next question or finish
-    4. On "Finish": Call `evaluateDiagnostic()`, save results to localStorage, redirect to `/results`
+External GitHub link.
 
----
+2. User Signup (/signup)
 
-### 📊 RESULTS & AI EXPLANATIONS (`src/app/results/`)
+File Location: signup/page.tsx
 
-#### `results/page.tsx`
-- **Purpose**: Display diagnosed misconceptions with AI-generated explanations
-- **Key Functions**:
-  - `ResultsPage()` - Main results component
-  - `getSeverity(misconceptionCount)` - Calculate risk level (High/Medium/Low)
-  - `severityStyle(severity)` - Return Tailwind CSS classes for severity badge
-  - `HealthBar()` - Helper component for progress bars
-  - `InsightRow()` - Helper component for insight display
-  - `GraphPreview()` - Helper component for SVG graph preview
-  - **State**:
-    - `misconceptions` - Loaded from localStorage
-    - `aiExplanations` - Record<string, {explanation, mission}>
-    - `open` - Track expanded misconception accordion
-  - **On Mount Effect**:
-    1. Fetch misconceptions from localStorage
-    2. For each misconception, POST to `/api/explain`
-    3. Collect AI-generated explanations and mission steps
-    4. Update state with results
-  - **Computed Values**:
-    - `graphHealth` - % of concepts that are healthy
-    - `riskLevel` - High/Medium/Low based on misconception count
-    - `metrics` - Array of stats cards (computed from state)
-  - **Display Sections**:
-    1. Hero summary with metrics
-    2. AI Cognitive Analysis panel
-    3. Misconception cards (accordion) with AI guidance + repair path
-    4. Recovery Journey progress indicator
-    5. Knowledge Graph CTA with Link to `/graph`
+Inputs: Full Name, Email, Password, Confirm Password, agreed terms checkbox.
 
----
+Outputs: Account creation form, client-side validation errors, success banner with redirect button.
 
-### 📈 KNOWLEDGE GRAPH (`src/app/graph/`)
+Data Source: Form inputs, Supabase Auth.
 
-#### `graph/page.tsx`
-- **Purpose**: Visualize concept health and detect broken nodes
-- **Key Functions**:
-  - `GraphPage()` - Main component
-  - **State**:
-    - `brokenNodes` - Array of node IDs affected by misconceptions
-    - `misconceptions` - Loaded from localStorage
-  - **On Mount Effect**:
-    1. Fetch misconceptions from localStorage
-    2. Call `evaluateGraphHealth()` to get broken nodes
-  - **Computed Values**:
-    - `brokenCount` - Count of broken nodes
-    - `healthyCount` - Total nodes minus broken count
-    - `graphHealth` - % of concepts that are healthy
-  - **Display**:
-    - Stats: Broken/Healthy/Total concept counts
-    - Health bar showing concept health %
-    - GraphCanvas component with hover interactivity
-    - Legend showing node colors (green=healthy, red=broken)
+LocalStorage Usage: None.
 
----
+Supabase Usage: Calls supabase.auth.signUp().
 
-### 👨‍🏫 TEACHER ANALYTICS (`src/app/teacher/`)
+Navigation Destinations:
 
-#### `teacher/page.tsx`
-- **Purpose**: Teacher dashboard showing misconception statistics
-- **Key Functions**:
-  - `TeacherPage()` - Main component
-  - **Hardcoded Data**: `analytics` array with 4 misconceptions
-    - Each has: name, count (%), severity (high/medium/low)
-  - **Display Sections**:
-    1. "Most Common Misconceptions" - Grid of cards with severity badges
-    2. "Misconception Distribution" - Horizontal progress bars
-  - **Note**: Currently static; in production should aggregate from all student diagnostics
+/login (via success banner or "Sign In" link).
 
----
+/terms and /privacy (via terms links).
 
-### 🔌 API ROUTES (`src/app/api/`)
+3. User Login (/login)
 
-#### `api/explain/route.ts`
-- **Purpose**: Backend API endpoint for AI explanation generation
-- **Key Functions**:
-  - `POST(request)` - Handle explanation requests
-  - **Request Body**:
-    ```json
-    {
-      "misconceptionName": string,
-      "brokenConcept": string,
-      "description": string
-    }
-    ```
-  - **Logic**:
-    1. Extract misconception details from request
-    2. Call `buildExplanationPrompt()` to create Gemini prompt
-    3. Initialize GoogleGenAI client with GEMINI_API_KEY
-    4. Call `ai.models.generateContent()` with gemini-2.5-flash model
-    5. Parse JSON response from Gemini
-    6. Extract `explanation` and `mission` fields
-    7. Return as NextResponse.json
-  - **Error Handling**:
-    - Catches quota errors (HTTP 429)
-    - Returns fallback message if Gemini fails
-    - Cleans JSON formatting (removes markdown code blocks)
+File Location: login/page.tsx
 
----
+Inputs: Email, Password.
 
-### 🧩 COMPONENTS (`src/components/`)
+Outputs: Login form, error alerts.
 
-#### `QuestionCard.tsx`
-- **Purpose**: Reusable component for displaying diagnostic questions
-- **Props**:
-  ```typescript
-  {
-    question: string,
-    options: string[],
-    selectedOption: number | null,
-    onSelect: (index: number) => void
-  }
-  ```
-- **Key Functions**:
-  - `QuestionCard()` - Renders question with multiple choice buttons
-  - Highlights selected option with blue background
-  - Calls `onSelect(index)` when button is clicked
+Data Source: Form inputs, Supabase Auth.
 
-#### `GraphCanvas.tsx`
-- **Purpose**: SVG-based interactive knowledge graph visualization
-- **Props**:
-  ```typescript
-  {
-    brokenNodes: string[],
-    misconceptions: Misconception[]
-  }
-  ```
-- **Key Functions**:
-  - `GraphCanvas()` - Main component
-  - **State**:
-    - `hoveredNode` - Currently hovered node ID
-  - **Features**:
-    - Renders SVG with circles (nodes) and lines (edges)
-    - Node colors: Red = broken, Green = healthy
-    - Hover tooltip showing:
-      - Node label
-      - Status (Broken/Healthy)
-      - List of misconceptions affecting this node
-    - Uses `getNodeMisconceptions()` to fetch misconceptions for hovered node
-  - **Hardcoded Positions**: Object with X,Y coordinates for 5 nodes
+LocalStorage Usage: None.
 
----
+Supabase Usage: Calls supabase.auth.signInWithPassword().
 
-### 📚 BUSINESS LOGIC (`src/lib/`)
+Navigation Destinations:
 
-#### `evaluateDiagnostic.ts`
-- **Purpose**: Core misconception detection algorithm
-- **Key Functions**:
-  - `evaluateDiagnostic(questions, answers)` → Misconception[]
-  - **Algorithm**:
-    1. Iterate through all questions
-    2. Compare selected answer to correct answer
-    3. If wrong: Get misconception code from question.misconceptions[selectedAnswer]
-    4. Fetch misconception data from misconceptions.ts
-    5. Add to detectedMisconceptions array
-    6. Return all detected misconceptions
-  - **Input**: 
-    - questions: Question[]
-    - answers: Record<number, number> (question ID → selected option index)
-  - **Output**: Misconception[]
+/teacher (if the logged-in email matches the local admin list).
 
-#### `evaluateGraphHealth.ts`
-- **Purpose**: Map misconceptions to broken graph nodes
-- **Key Functions**:
-  - `evaluateGraphHealth(misconceptions)` → string[]
-  - **Algorithm**:
-    1. Create Set<string> for unique node IDs
-    2. For each misconception, add its graphNodeId to set
-    3. Convert set to array and return
-  - **Use Case**: Determines which concept nodes are "broken" in the knowledge graph
+/diagnostic (if standard user).
 
-#### `buildExplanationPrompt.ts`
-- **Purpose**: Construct prompt template for Gemini AI
-- **Key Functions**:
-  - `buildExplanationPrompt(misconceptionName, brokenConcept, description)` → string
-  - **Returns**: Formatted prompt with:
-    - Context: "You are an expert physics tutor"
-    - Input: Misconception details
-    - Instructions: 7-step explanation task
-    - Constraints: <120 words, no equations, beginner-friendly
-    - Output format: JSON with `explanation` and `mission` fields
-  - **Used By**: `api/explain/route.ts` to query Gemini
+/signup (via "Create Account" link).
 
-#### `getNodeMisconceptions.ts`
-- **Purpose**: Filter misconceptions affecting a specific graph node
-- **Key Functions**:
-  - `getNodeMisconceptions(nodeId, misconceptions)` → Misconception[]
-  - **Algorithm**: Filter misconceptions array where graphNodeId === nodeId
-  - **Used By**: GraphCanvas for hover tooltip
+/recovery (via "Forgot password?" link — ⚠️ DEAD ROUTE).
 
----
+4. Diagnostic Quiz (/diagnostic)
 
-### 🏷️ TYPES (`src/types/`)
+File Location: diagnostic/page.tsx
 
-#### `question.ts`
-```typescript
-type Question = {
-  id: number,
-  question: string,
-  options: string[],
-  correctAnswer: number,
-  misconceptions: {[optionIndex: number]: string}
-}
-```
+Inputs: Selected answers mapped in React component state answers (Record<number, number>).
 
-#### `misconception.ts`
-```typescript
-type Misconception = {
-  code: string,
-  name: string,
-  description: string,
-  brokenConcept: string,
-  graphNodeId: string
-}
-```
+Outputs: Question multiple-choice cards, progress bar, quiz completion button.
 
-#### `repair.ts`
-```typescript
-type Repair = {
-  misconceptionCode: string,
-  title: string,
-  explanation: string
-}
-```
+Data Source: questions.ts (Static questions), supabase.auth.getUser().
 
-#### `graph.ts`
-```typescript
-type GraphNode = {id: string, label: string}
-type GraphEdge = {source: string, target: string}
-```
+LocalStorage Usage:
 
-#### `aiExplanation.ts`
-```typescript
-type AIExplanation = {
-  misconceptionName: string,
-  explanation: string
-}
-```
+Writes: "misconceptions" (stores JSON string of detected misconceptions on completion).
 
----
+Supabase Usage:
 
-### 📋 STATIC DATA (`src/data/`)
+Authenticates session via supabase.auth.getUser().
 
-#### `questions.ts`
-- **Purpose**: 5 diagnostic questions on Newton's Laws
-- **Structure**: Question[] with:
-  - id: 1-5
-  - question: String
-  - options: 4 answer choices
-  - correctAnswer: Index of correct option
-  - misconceptions: Object mapping wrong options to misconception codes
-- **Example**:
-  ```typescript
-  {
-    id: 1,
-    question: "What is Newton's First Law?",
-    options: ["Motion requires force", "Objects resist changes", ...],
-    correctAnswer: 1,
-    misconceptions: {0: "NEWTON_1_FORCE_REQUIRED", 2: "FORCE_IN_DIRECTION_OF_MOTION"}
-  }
-  ```
+Logs out via supabase.auth.signOut().
 
-#### `misconceptions.ts`
-- **Purpose**: Registry of 5 physics misconceptions
-- **Structure**: Record<string, Misconception> with:
-  - NEWTON_1_FORCE_REQUIRED
-  - BALANCED_FORCE_MEANS_REST
-  - FORCE_IN_DIRECTION_OF_MOTION
-  - FORCE_IMBALANCE_COLLISION
-  - MASS_SPEED_CONFUSION
-- **Each has**: code, name, description, brokenConcept, graphNodeId
+Inserts: Creates a new row in the attempts table upon quiz completion with fields: user_id, graph_health, misconception_count, misconceptions (JSONB), and answers (JSONB).
 
-#### `repairs.ts`
-- **Purpose**: Repair pathways for each misconception
-- **Structure**: Record<string, Repair> mapping misconception code to repair
-- **Each has**: misconceptionCode, title, explanation (static text)
+Navigation Destinations:
 
-#### `graph.ts`
-- **Purpose**: Knowledge graph structure
-- **Content**:
-  - `nodes`: 5 GraphNode objects
-    - newton_first_law
-    - net_force
-    - balanced_forces
-    - newton_second_law
-    - newton_third_law
-  - `edges`: 4 GraphEdge connections
-    - newton_first_law → net_force
-    - net_force → balanced_forces
-    - net_force → newton_second_law
-    - net_force → newton_third_law
+/results (after submitting diagnostic).
 
----
+/profile (via header nav link).
 
-## Data Flow Summary
+/login (on logout or unauthenticated access).
 
-```
-User Flow:
-  Landing (/page.tsx)
-    ↓ [Start Diagnostic]
-  Diagnostic (/diagnostic/page.tsx)
-    • Load questions[0]
-    • User selects answer
-    • Save to state: answers[questionId] = optionIndex
-    • On "Finish": evaluateDiagnostic() → misconceptions[]
-    • Save to localStorage["misconceptions"]
-    ↓
-  Results (/results/page.tsx)
-    • Load from localStorage
-    • For each misconception: POST /api/explain
-    • Gemini generates explanation + mission steps
-    • Display results with metrics
-    ↓ [View Knowledge Graph]
-  Graph (/graph/page.tsx)
-    • Load misconceptions from localStorage
-    • evaluateGraphHealth() → brokenNodes[]
-    • Visualize graph with broken nodes highlighted
-    • Hover nodes to see affected misconceptions
-```
+5. Results & Diagnostic Report (/results)
 
----
+File Location: results/page.tsx
 
-## Environment Variables Required
+Inputs: LocalStorage "misconceptions". Accordion expanded state.
 
-```bash
-GEMINI_API_KEY=<your-gemini-2.5-flash-lite-api-key>
-```
+Outputs: Severity metrics, concept health progress bars, misconception cards with AI Guidance accordion and Repair Path highlights.
 
----
+Data Source: LocalStorage, repairs.ts (Static data), API /api/explain (AI explanations).
 
-## Key Technologies
+LocalStorage Usage:
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 |
-| UI | React 19 |
-| Language | TypeScript 5 |
-| Styling | Tailwind CSS 4 |
-| AI | Google Gemini 2.5 Flash |
-| State | React useState + localStorage |
-| Icons | Lucide Icons |
+Reads: "misconceptions" (parsed and deduplicated).
 
----
+Supabase Usage:
 
-## Deployment Ready
+Authenticates session via supabase.auth.getUser().
 
-✅ Type-safe with TypeScript  
-✅ API integration with error handling  
-✅ Responsive design with Tailwind  
-✅ Progressive enhancement (localStorage)  
-✅ Clean code organization  
-✅ Ready for hackathon demo
+Logs out via supabase.auth.signOut().
+
+Navigation Destinations:
+
+/mission (via "Start Repair Mission" CTA inside accordion).
+
+/graph (via "Open Knowledge Graph" CTA).
+
+/profile (via header nav link).
+
+/login (on logout or unauthenticated access).
+
+6. Knowledge Graph Visualization (/graph)
+
+File Location: graph/page.tsx
+
+Inputs: LocalStorage "misconceptions". SVG node hover index.
+
+Outputs: Interactive SVG knowledge graph rendering healthy (green) and broken (red) nodes, concept metric cards, node hover description tooltip.
+
+Data Source: LocalStorage, graph.ts (Static nodes/edges structure), evaluateGraphHealth(), getNodeMisconceptions().
+
+LocalStorage Usage:
+
+Reads: "misconceptions".
+
+Supabase Usage:
+
+Authenticates session via supabase.auth.getUser().
+
+Logs out via supabase.auth.signOut().
+
+Navigation Destinations:
+
+/results (via "Back to Results" CTA).
+
+/diagnostic (via "Retake Diagnostic" CTA).
+
+/profile (via header nav link).
+
+/login (on logout or unauthenticated access).
+
+7. Repair Missions (/mission)
+
+File Location: mission/page.tsx
+
+Inputs: LocalStorage "misconceptions". Checklist item toggle state completed (Record<string, Record<number, boolean>>).
+
+Outputs: Step-by-step repair checklist cards for each diagnosed misconception, mission progress bar, redirection triggers.
+
+Data Source: LocalStorage, repairs.ts (Static data).
+
+LocalStorage Usage:
+
+Reads: "misconceptions".
+
+Supabase Usage:
+
+Authenticates session via supabase.auth.getUser().
+
+Logs out via supabase.auth.signOut().
+
+Navigation Destinations:
+
+/results (via "Back to Results" CTA).
+
+/recover (via "Continue to Recovery" CTA, enabled when all checklist steps are checked).
+
+/profile (via header nav link).
+
+/login (on logout or unauthenticated access).
+
+8. Recovery Summary (/recover)
+
+File Location: recover/page.tsx
+
+Inputs: LocalStorage "misconceptions".
+
+Outputs: Post-recovery metrics comparing "Graph Health Before" vs "Graph Health After", repaired nodes counts, comparison visual graphs.
+
+Data Source: LocalStorage, simulated mathematical calculation formulas.
+
+LocalStorage Usage:
+
+Reads: "misconceptions".
+
+Supabase Usage:
+
+Authenticates session via supabase.auth.getUser().
+
+Logs out via supabase.auth.signOut().
+
+Navigation Destinations:
+
+/graph (via "View Knowledge Graph" CTA).
+
+/diagnostic (via "Retake Diagnostic" CTA).
+
+/profile (via header nav link).
+
+/login (on logout or unauthenticated access).
+
+9. Learner Profile (/profile)
+
+File Location: profile/page.tsx
+
+Inputs: Logged-in User Session, Supabase query parameters.
+
+Outputs: User details card, cumulative stats (attempts count, average health, best score), click-to-view historical attempts list.
+
+Data Source: Supabase Auth, Supabase DB.
+
+LocalStorage Usage: None.
+
+Supabase Usage:
+
+Authenticates session via supabase.auth.getUser().
+
+Logs out via supabase.auth.signOut().
+
+Queries: Selects row from profiles matching user ID.
+
+Queries: Selects rows from attempts matching user ID, ordered by created_at descending.
+
+Navigation Destinations:
+
+/attempt/[id] (via clicking an attempt item).
+
+/results (via header nav link).
+
+/login (on logout or unauthenticated access).
+
+/teacher (automatic redirect if user is an admin).
+
+10. Attempt Review Detail (/attempt/[id])
+
+File Location: attempt/[id]/page.tsx
+
+Inputs: URL path parameter id (attempt ID).
+
+Outputs: Health metrics, diagnostic list of misconceptions, question review list highlighting student selection vs correct option.
+
+Data Source: Supabase DB, questions.ts (Static questions).
+
+LocalStorage Usage: None.
+
+Supabase Usage:
+
+Queries: Selects the single row from attempts matching parameter id.
+
+Navigation Destinations:
+
+/profile (via "Back" CTA).
+
+/ (via header logo link).
+
+11. Teacher Dashboard (/teacher)
+
+File Location: teacher/page.tsx
+
+Inputs: Logged-in admin session. Button click triggers.
+
+Outputs: Cohort aggregates (common misconceptions heatmap, average severity, stability indexes), student performance rosters, AI-generated cohort insights.
+
+Data Source: Supabase DB, API /api/teacher-insight (AI synthesis).
+
+LocalStorage Usage: None.
+
+Supabase Usage:
+
+Authenticates session via supabase.auth.getUser().
+
+Logs out via supabase.auth.signOut().
+
+Queries: Selects all rows from attempts and profiles tables.
+
+Navigation Destinations:
+
+/teacher/student/[id] (via student view buttons).
+
+/teacher/profile (via header "AIC" link).
+
+/graph and /mission (via action tiles in Interventions).
+
+/login (on logout or non-admin access).
+
+12. Admin Intelligence Center (/teacher/profile)
+
+File Location: teacher/profile/page.tsx
+
+Inputs: Logged-in admin session.
+
+Outputs: Executive summary of cohort metrics, top classroom misconceptions list, most struggling students list.
+
+Data Source: Supabase DB.
+
+LocalStorage Usage: None.
+
+Supabase Usage:
+
+Authenticates session via supabase.auth.getUser().
+
+Queries: Selects all rows from attempts and profiles.
+
+Navigation Destinations:
+
+/teacher (via "Dashboard" header link).
+
+/teacher/student/[id] (via clicking a student in the struggling list).
+
+13. Student Drilldown Details (/teacher/student/[id])
+
+File Location: teacher/student/[id]/page.tsx
+
+Inputs: URL path parameter id (student user_id).
+
+Outputs: Selected student metrics (attempts count, average health, latest health), student misconception frequencies, student historical attempts list.
+
+Data Source: Supabase DB.
+
+LocalStorage Usage: None.
+
+Supabase Usage:
+
+Queries: Selects the student's profile from profiles.
+
+Queries: Selects the student's attempts from attempts table.
+
+Navigation Destinations:
+
+/teacher (via "Back" link).
+
+/attempt/[id] (via clicking an attempt item).
+
+🔌 API Routes
+
+14. AI Guidance Generator (/api/explain)
+
+File Location: explain/route.ts
+
+Inputs: POST Request JSON containing misconceptionName, brokenConcept, and description.
+
+Outputs: AI explanation and custom mission steps.
+
+Data Source: Google Gemini API (gemini-2.5-flash-lite), prompt template from buildExplanationPrompt.ts.
+
+Database & Storage Usage: None.
+
+15. Cohort Insights Generator (/api/teacher-insight)
+
+File Location: teacher-insight/route.ts
+
+Inputs: POST Request JSON containing analytics list, totalStudents count, and averageHealth score.
+
+Outputs: AI data synthesis paragraph explaining learning problems, root causes, and recommended interventions.
+
+Data Source: Google Gemini API (gemini-2.5-flash-lite).
+
+Database & Storage Usage: None.
+
+🗺️ Route Dependency Map
+
+The diagram below maps the navigation paths and relationships between these routes:
+
+graph TD
+    %% Define styles
+    classDef auth fill:#1e293b,stroke:#475569,stroke-width:1px,color:#f8fafc
+    classDef student fill:#064e3b,stroke:#059669,stroke-width:2px,color:#e6f4ea
+    classDef teacher fill:#3b0764,stroke:#8b5cf6,stroke-width:2px,color:#f5f3ff
+    classDef misc fill:#7c2d12,stroke:#ea580c,stroke-width:1px,color:#fff7ed
+
+    %% Define nodes
+    Home["Landing Page (/)"]
+    Signup["Signup (/signup)"]:::auth
+    Login["Login (/login)"]:::auth
+    
+    %% Student Flow
+    Diag["Diagnostic (/diagnostic)"]:::student
+    Results["Results (/results)"]:::student
+    Graph["Graph (/graph)"]:::student
+    Mission["Missions (/mission)"]:::student
+    Recover["Recovery (/recover)"]:::student
+    Profile["Profile (/profile)"]:::student
+    Attempt["Attempt Detail (/attempt/[id])"]:::student
+    
+    %% Teacher Flow
+    Teach["Teacher Dashboard (/teacher)"]:::teacher
+    AIC["AIC (/teacher/profile)"]:::teacher
+    Drill["Student Drilldown (/teacher/student/[id])"]:::teacher
+
+    %% Navigation Paths
+    Home -->|Start| Login
+    Login -->|No Account| Signup
+    Signup -->|Account Created| Login
+    
+    Login -->|Standard User| Diag
+    Login -->|Admin User| Teach
+    
+    Diag -->|Submit & Write DB/Local| Results
+    
+    Results -->|Open Graph| Graph
+    Results -->|Start Mission| Mission
+    
+    Graph -->|Back| Results
+    Graph -->|Retake| Diag
+    
+    Mission -->|Back| Results
+    Mission -->|Check All Steps| Recover
+    
+    Recover -->|View Graph| Graph
+    Recover -->|Retake| Diag
+    
+    %% Profile Paths
+    Diag & Results & Graph & Mission & Recover -->|Header Nav| Profile
+    Profile -->|Click Attempt| Attempt
+    Attempt -->|Back| Profile
+    
+    %% Teacher Dashboard Paths
+    Teach -->|Header Nav| AIC
+    AIC -->|Back| Teach
+    Teach -->|Click Student| Drill
+    AIC -->|Click Student| Drill
+    Drill -->|Click Attempt| Attempt
+    Drill -->|Back| Teach
+    
+    %% Intervention Hooks (Volatile)
+    Teach -.->|Concept Reinforce| Mission
+    Teach -.->|Review Graph| Graph
+
+2. State Flow Audit
+
+Here is a step-by-step tracing of the cognitive diagnosis-to-repair data flow, demonstrating what data is created, modified, persisted, and where it falls out of sync.
+
+🔍 Data Flow Lifecycle
+
+[Diagnostic Quiz]
+    │  (Creates answers Record)
+    ▼
+[evaluateDiagnostic()]
+    │  (Returns misconceptions Array)
+    ▼
+[Completion Event]
+    ├── Writes to LocalStorage: "misconceptions"
+    └── Inserts into Supabase: new attempt row (graph_health, answers, misconceptions)
+    ▼
+[Results / ResultsPage]
+    │  (Reads localStorage "misconceptions")
+    │  (Fetches /api/explain to populate local React state "aiExplanations")
+    ▼
+[Missions / MissionPage]
+    │  (Reads localStorage "misconceptions")
+    │  (Manages checkbox status in local React state "completed")
+    ▼
+[Recovery / RecoverPage]
+    │  (Reads localStorage "misconceptions")
+    │  (Calculates simulated "healthAfter" display value: healthBefore + 70% of delta)
+    ▼
+[Final Graph / GraphPage]
+    │  (Reads localStorage "misconceptions")
+    └── ❌ INCONSISTENCY: Loads original diagnostic misconceptions. Graph remains broken.
+
+🚨 Critical State Inconsistency Points
+
+AI Explanations Volatility on Results Page:
+
+AI Guidance data generated on /results by calling /api/explain is held strictly in local component state aiExplanations.
+
+If a user refreshes the Results page, all AI text disappears and must be fully re-requested, which leads to slow performance, redundant API calls, and potential Gemini quota depletion.
+
+Checklist Progress Volatility on Mission Page:
+
+Checkbox items checked by the user are tracked in local React state (completed).
+
+Ticking checkboxes does not write to localStorage or update the Supabase attempt record.
+
+Refreshing the page, navigating back, or navigating forward completely wipes all checkbox history. Progress drops back to 0%, preventing the user from navigating to /recover unless they re-check everything.
+
+Restored Graph Health is a Simulated Illusion:
+
+The /recover page displays a "repaired" health value (healthAfter) computed dynamically on mount:healthAfter = Math.min(100, healthBefore + Math.round((brokenBefore / TOTAL_CONCEPTS) * 70))
+
+This calculation is completely cosmetic. No state is modified—the original list of misconceptions in localStorage remains intact, and the Supabase database attempt row is never updated.
+
+LocalStorage Stale-State Pollution on Logout:
+
+The "misconceptions" key in localStorage is never cleared or overwritten during logout.
+
+If User A logs out and User B logs in on the same browser, User B will immediately inherit User A's cognitive diagnosis, seeing incorrect results, graphs, and recovery paths.
+
+3. Attempt Lifecycle Audit
+
+An "attempt" does not behave as a single cohesive entity in this application. The table below audits attempt-state behavior across each stage of the learner journey.
+
+Stage
+
+Path
+
+Tied to attempt.id?
+
+Tied to localStorage?
+
+Tied to Supabase?
+
+Broken by Page Refresh?
+
+Broken by Back Navigation?
+
+1. Diagnostic
+
+/diagnostic
+
+❌ No
+
+❌ No
+
+❌ No
+
+Yes (Resets to Q1)
+
+Yes (Resets progress)
+
+2. Results
+
+/results
+
+❌ No
+
+Yes (reads code array)
+
+❌ No
+
+Partial (Loses AI text)
+
+❌ No
+
+3. Graph
+
+/graph
+
+❌ No
+
+Yes (reads code array)
+
+❌ No
+
+❌ No
+
+❌ No
+
+4. Mission
+
+/mission
+
+❌ No
+
+Yes (reads code array)
+
+❌ No
+
+Yes (Resets checkboxes)
+
+Yes (Resets checkboxes)
+
+5. Recovery
+
+/recover
+
+❌ No
+
+Yes (reads code array)
+
+❌ No
+
+❌ No
+
+❌ No
+
+6. Profile
+
+/profile
+
+Yes (historical lists)
+
+❌ No
+
+Yes (reads all rows)
+
+❌ No
+
+❌ No
+
+7. Drilldown
+
+/attempt/[id]
+
+Yes (queries ID row)
+
+❌ No
+
+Yes (reads ID row)
+
+❌ No
+
+❌ No
+
+🛠️ Key Lifecycle Flaws
+
+Disjointed Client/Server States:
+
+The student journey is fueled entirely by a local, unstable localStorage["misconceptions"] key.
+
+Although /diagnostic inserts a row into the database, it discards the row's returned ID.
+
+The subsequent pages (/results, /graph, /mission, /recover) have no idea which database attempt record they correspond to. They cannot read from or write progress to the active attempt in Supabase.
+
+Stage Tracking Progression Mismatch:
+
+The stages displayed in progress indicators (e.g. "Stage 3 of 4" on /results, "Stage 4 Complete" on /recover) are hardcoded text values.
+
+Because there is no central session state engine tracking current_stage for the attempt, a user can skip straight to /recover or /mission by typing the URL, bypassing prerequisite steps.
+
+4. Navigation Audit
+
+An analysis of routing actions reveals several dead-ends, incorrect redirects, and context-loss bugs.
+
+🔍 Route Actions Analysis
+
+login/page.tsx:L179:
+
+Expected Destination: A page to recover passwords or manage user login credentials.
+
+Actual Destination: Links to /recovery. This route does not exist in the files, causing a 404 Page Not Found error.
+
+results/page.tsx:L537:
+
+Expected Destination: A repair pathway focusing on the specific misconception the user clicked on.
+
+Actual Destination: Links generically to /mission without query parameters or state filters. This forces the student to see all diagnosed misconceptions instead of their chosen focus.
+
+recover/page.tsx:L438:
+
+Expected Destination: A visual rendering of the newly repaired/recovered knowledge graph.
+
+Actual Destination: Links to /graph which reads from the un-cleared "misconceptions" localStorage array. The user is presented with the original, red, broken graph they had prior to repair.
+
+teacher/page.tsx:L720 & L755:
+
+Expected Destination: High-level reviews of the class curriculum graph/missions.
+
+Actual Destination: Links directly to /mission and /graph which load student state from the teacher's local storage. This will either show empty/stale test data or crash if the arrays are missing.
+
+attempt/[id]/page.tsx:L84:
+
+Expected Destination: Returning to the page that launched the attempt review (dynamic context).
+
+Actual Destination: Hardcoded back link to <Link href="/profile">Back</Link>.
+
+Issue: If a teacher reviews a student's attempt via the Teacher Student Drilldown /teacher/student/[id] and clicks "Back", they are navigated to /profile (the standard student profile page), which redirects them back to /teacher since they are admin. This loses student context and prevents seamless teacher grading/review workflows.
+
+5. LocalStorage Audit
+
+📁 Key Registry
+
+Key
+
+Created By
+
+Read By
+
+Cleared On
+
+Stale Data Prevention
+
+"misconceptions"
+
+/diagnostic
+
+/results/graph/mission/recover
+
+Never
+
+None. Stale data remains indefinitely unless overwritten by a new quiz.
+
+🐛 LocalStorage-Related Bugs
+
+State Pollution: When logging out via supabase.auth.signOut(), the "misconceptions" key is left inside the browser. A subsequent user logging in on the same browser inherits the previous user's cognitive state.
+
+Lack of Multi-Attempt Isolation: Since there is only one global "misconceptions" key, if a user clicks an older attempt in their /profile history, the local storage is not updated. Navigating to /graph or /mission will still display the state of their most recent quiz, not the historical attempt they selected.
+
+6. Graph Consistency Audit
+
+The knowledge graph has a critical state synchronization gap between the student's repair actions and the database record.
+
+📈 Current Graph vs. Recovered Graph
+
+Is the repaired graph stored?
+
+No. The app does not persist the repaired state. There is no table or localStorage array representing a "repaired" node list.
+
+Is the repaired graph tied to the attempt?
+
+No. The attempt row in Supabase contains a JSON snapshot of the original misconceptions and graph health at the moment the diagnostic was finished. This database record is never updated.
+
+Does graph health update in profile history?
+
+No. The profile page /profile pulls graph_health from the database attempts records. Because the recovery step does not write back to the database, attempt history will always show the pre-repair health scores (e.g. 20% or 40%).
+
+Can a user revisit a repaired graph later?
+
+No. Going to /graph always runs evaluateGraphHealth on the original misconceptions list from localStorage, displaying the broken red nodes indefinitely.
+
+7. Teacher Dashboard Audit
+
+The Teacher Dashboard and Admin Intelligence Center are designed to aggregate student diagnostic attempts to compile class analytics.
+
+🔀 Student vs. Teacher Mismatches
+
+Because the student's repair and recovery stages do not write back to the database, student statistics in the teacher dashboards reflect A) Original diagnostic state.
+
+If a student gets 20% on their initial diagnostic and subsequently repairs their understanding to 90% via missions, the teacher's dashboard will still flag this student as "Critical Risk" with 20% health.
+
+This renders teacher tracking useless, as student recovery efforts are invisible to classroom analytics.
+
+8. Demo Risk Assessment
+
+This matrix outlines bugs that are highly likely to be discovered during a standard 5-minute hackathon presentation.
+
+Issue
+
+Severity
+
+Target Page
+
+Impact Description
+
+View Graph from Recovery is Broken
+
+P0
+
+/recover → /graph
+
+The user completes their recovery path (visualizing a 100% healthy graph), clicks "View Knowledge Graph", and is shown the original, broken, red graph.
+
+Forgot Password Dead Link
+
+P0
+
+/login
+
+Clicking "Forgot password?" triggers a 404 page error.
+
+Mission Checklist State Wiped on Refresh
+
+P0
+
+/mission
+
+If a judge refreshes the mission checklist, all boxes clear. They must recheck all boxes to proceed.
+
+Cross-User LocalStorage Leak
+
+P0
+
+/login / /signup
+
+Logging out and registering a new user displays the previous user's quiz results and diagnostics.
+
+Teacher Dashboard Out-of-Sync
+
+P1
+
+/teacher
+
+Teacher reports do not show student recovery progress, displaying stale diagnostic stats.
+
+Teacher Review Navigation Loop
+
+P1
+
+/attempt/[id]
+
+Teacher viewing a student's attempt clicks "Back" and is redirected to their own profile page, breaking dashboard navigation.
+
+Hardcoded Admin Email checks
+
+P1
+
+/teacher / /login
+
+Authorization checks hardcode "omavkarkele@gmail.com". If logging in with other admin credentials, redirection breaks.
+
+Results Page AI Explanations Lost
+
+P2
+
+/results
+
+Refreshing the results page removes all AI guidance text boxes, forcing re-generation.
+
+No Individual Misconception Focus
+
+P2
+
+/results → /mission
+
+Clicking "Start Repair Mission" on a specific card loads the checklists for all diagnosed misconceptions simultaneously.
+
+9. Recommended Fix Order
+
+To maximize hackathon demo success, fixes should be executed in the following order:
+
+🛠️ Fix #1: Persist Repaired Graph State & Clear Misconceptions upon Recovery
+
+Target Files:
+
+recover/page.tsx
+
+graph/page.tsx
+
+Rationale:
+
+Upon entering /recover, the database attempt record (or a new field in Supabase) must be updated to reflect the new graph_health and remove the repaired misconceptions.
+
+Correspondingly, the local storage misconceptions array must be updated/cleared. This ensures that clicking "View Knowledge Graph" from recovery properly displays a healthy, green graph, and that profile logs match this state.
+
+🛠️ Fix #2: Persist Checklist Checkboxes to LocalStorage
+
+Target Files:
+
+mission/page.tsx
+
+Rationale:
+
+Write checkbox toggle status directly to local storage (e.g. key: "mission_progress") on change and load on mount. This prevents page refreshes and backward/forward navigation from wiping progress.
+
+🛠️ Fix #3: Clear LocalStorage on Logout
+
+Target Files:
+
+diagnostic/page.tsx
+
+results/page.tsx
+
+graph/page.tsx
+
+mission/page.tsx
+
+recover/page.tsx
+
+teacher/page.tsx
+
+Rationale:
+
+Modify handleLogout to execute localStorage.removeItem("misconceptions") along with deleting any temporary user metrics. This guarantees clean user boundaries during testing.
+
+🛠️ Fix #4: Redirect Forgot Password and Standardize Admin Authentication checks
+
+Target Files:
+
+login/page.tsx
+
+teacher/page.tsx
+
+teacher/profile/page.tsx
+
+Rationale:
+
+Remove the dead route /recovery and point forgot-password helpers to a valid route or modal overlay.
+
+Consolidate admin permission checking into the imported ADMIN_EMAILS from @/lib/admin instead of hardcoding checking string literals on multiple client pages.
+
+🛠️ Fix #5: Attempt Context Integration (Route Parameter Passing)
+
+Target Files:
+
+results/page.tsx
+
+graph/page.tsx
+
+mission/page.tsx
+
+Rationale:
+
+Standardize client routing to pass the attempt ID (e.g. /results?attemptId=... or /attempt/[id]/graph). This enables the client to load and update state based on specific database attempts, solving multi-attempt data isolation issues.
+
+🛠️ Fix #6: Context-Aware Back Navigation in Attempt Details
+
+Target Files:
+
+attempt/[id]/page.tsx
+
+Rationale:
+
+Check the user's role on mount. If the user is an admin/teacher, change the "Back" button target to go back to /teacher/student/[id] or /teacher instead of hardcoding a redirect to /profile.

@@ -381,7 +381,13 @@ export default function MissionPage() {
                   ? "bg-linear-to-r from-emerald-400 to-teal-300 text-[#02201a] shadow-[0_0_40px_rgba(16,185,129,0.35)] hover:shadow-[0_0_60px_rgba(16,185,129,0.55)]"
                   : "cursor-not-allowed bg-white/6 text-white/30"
                 }`}
-              onClick={(e) => { if (!allDone) e.preventDefault(); }}
+              onClick={(e) => {
+                if (!allDone) {
+                  e.preventDefault();
+                } else {
+                  localStorage.setItem("recovery_authorized", "true");
+                }
+              }}
               aria-disabled={!allDone}
             >
               <span>{allDone ? "Continue to Recovery" : `Complete all missions to continue`}</span>

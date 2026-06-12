@@ -35,6 +35,10 @@ export default function DiagnosticPage() {
         "misconceptions",
         JSON.stringify(misconceptions)
       );
+      localStorage.setItem(
+        "original_misconceptions",
+        JSON.stringify(misconceptions)
+      );
 
       const {
         data: { user },
@@ -50,7 +54,7 @@ export default function DiagnosticPage() {
           100
         );
 
-        await supabase
+        const { data: insertedData } = await supabase
           .from("attempts")
           .insert({
             user_id: user.id,
@@ -59,7 +63,13 @@ export default function DiagnosticPage() {
               misconceptions.length,
             misconceptions,
             answers,
-          });
+          })
+          .select("id")
+          .single();
+
+        if (insertedData?.id) {
+          localStorage.setItem("latest_attempt_id", insertedData.id);
+        }
       }
 
       router.push("/results");

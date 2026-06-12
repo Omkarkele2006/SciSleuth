@@ -25,6 +25,8 @@ const TOTAL_CONCEPTS = 5;
 
 export default function RecoverPage() {
   const [misconceptions, setMisconceptions] = useState<Misconception[]>([]);
+  const [originalMisconceptions, setOriginalMisconceptions] = useState<Misconception[]>([]);
+  const [isPersisted, setIsPersisted] = useState(false);
   const router = useRouter();
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -38,20 +40,90 @@ export default function RecoverPage() {
     });
   }, [router]);
   useEffect(() => {
+    const storedOrig = localStorage.getItem("original_misconceptions");
     const stored = localStorage.getItem("misconceptions");
-    if (!stored) return;
+
+    let parsedOrig: Misconception[] = [];
+    let parsedStored: Misconception[] = [];
+
     try {
-      setMisconceptions(JSON.parse(stored));
-    } catch {
-      console.error("Failed to parse misconceptions");
+      if (storedOrig) parsedOrig = JSON.parse(storedOrig);
+    } catch { }
+    try {
+      if (stored) parsedStored = JSON.parse(stored);
+    } catch { }
+
+    if (parsedOrig.length === 0 && parsedStored.length > 0) {
+      parsedOrig = parsedStored;
+      localStorage.setItem("original_misconceptions", JSON.stringify(parsedOrig));
     }
+
+    setOriginalMisconceptions(parsedOrig);
+    setMisconceptions(parsedStored);
   }, []);
 
-  const brokenBefore = misconceptions.length;
+  const brokenBefore = originalMisconceptions.length;
   const healthBefore = Math.round(((TOTAL_CONCEPTS - brokenBefore) / TOTAL_CONCEPTS) * 100);
   const healthAfter = Math.min(100, healthBefore + Math.round((brokenBefore / TOTAL_CONCEPTS) * 70));
   const repaired = brokenBefore;
   const remaining = TOTAL_CONCEPTS - Math.round((healthAfter / 100) * TOTAL_CONCEPTS);
+
+  useEffect(() => {
+    if (originalMisconceptions.length === 0 || isPersisted) return;
+
+    const auth = localStorage.getItem(
+      "recovery_authorized"
+    );
+
+    if (
+      auth !== "true" &&
+      auth !== "completed"
+    ) {
+      router.replace("/mission");
+      return;
+    } // Gating check: only run update if authorized
+
+    if (auth !== "true") return;
+
+    const persistRecovery = async () => {
+      setIsPersisted(true);
+      localStorage.setItem("recovery_authorized", "completed"); // Prevent duplicate runs
+
+      const remainingCount = Math.max(0, remaining);
+      const remainingMisconceptions = originalMisconceptions.slice(0, remainingCount);
+
+      localStorage.setItem("misconceptions", JSON.stringify(remainingMisconceptions));
+      setMisconceptions(remainingMisconceptions);
+
+      let attemptId = localStorage.getItem("latest_attempt_id");
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (!attemptId && user) {
+        const { data: latestAttempts } = await supabase
+          .from("attempts")
+          .select("id")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false })
+          .limit(1);
+        if (latestAttempts && latestAttempts.length > 0) {
+          attemptId = latestAttempts[0].id;
+        }
+      }
+
+      if (attemptId) {
+        await supabase
+          .from("attempts")
+          .update({
+            graph_health: healthAfter,
+            misconception_count: remainingCount,
+            misconceptions: remainingMisconceptions,
+          })
+          .eq("id", attemptId);
+      }
+    };
+
+    persistRecovery();
+  }, [originalMisconceptions, healthAfter, remaining, isPersisted]);
 
   const stages = [
     { label: "Diagnose", icon: Microscope },
