@@ -1,3 +1,8 @@
+![Next.js](https://img.shields.io/badge/Next.js-16-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)
+![Gemini](https://img.shields.io/badge/AI-Gemini_2.5_Flash-orange)
+
 # SciSleuth
 
 **Diagnose misconceptions, not mistakes.**
@@ -24,6 +29,16 @@ As a result:
 * Students repeatedly make the same mistakes.
 * Teachers cannot identify underlying reasoning gaps.
 * Learning becomes focused on grades rather than conceptual understanding.
+
+---
+
+## Why It Matters
+
+A wrong answer is often the symptom, not the problem.
+
+Students frequently carry hidden misconceptions that persist even after repeated practice. Traditional quizzes identify incorrect answers but rarely diagnose the reasoning flaw behind them.
+
+SciSleuth focuses on conceptual understanding by detecting misconceptions, visualizing their impact on a knowledge graph, and guiding students through targeted recovery pathways.
 
 ---
 
