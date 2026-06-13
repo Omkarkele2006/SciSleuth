@@ -171,14 +171,6 @@ export default function TeacherProfilePage() {
                             ]
                         )
                     );
-                    console.log("PROFILES", profiles);
-console.log("PROFILE MAP", profileMap);
-console.log(
-  "USER IDS",
-  attempts?.map(
-    (a) => a.user_id
-  )
-);
                 const studentMap:
                     Record<
                         string,

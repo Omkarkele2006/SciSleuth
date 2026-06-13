@@ -258,12 +258,6 @@ export default function AttemptPage() {
                                 ]
                             );
 
-                            console.log({
-                                questionId: question.id,
-                                selectedAnswer,
-                                correctAnswer:
-                                    question.correctAnswer,
-                            });
 
                             const isCorrect =
                                 selectedAnswer ===

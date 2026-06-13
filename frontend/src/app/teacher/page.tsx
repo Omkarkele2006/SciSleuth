@@ -161,8 +161,6 @@ export default function TeacherAnalyticsPage() {
         await supabase
           .from("attempts")
           .select("*");
-      console.log("ATTEMPTS:", data);
-      console.log("ERROR:", error);
       if (error || !data) {
         console.error(error);
         return;
