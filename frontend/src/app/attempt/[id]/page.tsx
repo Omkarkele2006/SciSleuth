@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { questions } from "@/data/questions";
+import { ADMIN_EMAILS } from "@/lib/admin";
 
 type Misconception = {
     code: string;
@@ -43,6 +44,13 @@ export default function AttemptPage() {
 
     useEffect(() => {
         async function loadAttempt() {
+            const { data: { user }, error: userError } = await supabase.auth.getUser();
+
+            if (userError || !user) {
+                router.replace("/");
+                return;
+            }
+
             const { data, error } =
                 await supabase
                     .from("attempts")
@@ -51,7 +59,15 @@ export default function AttemptPage() {
                     .single();
 
             if (error || !data) {
-                router.push("/profile");
+                router.replace("/");
+                return;
+            }
+
+            const isOwner = data.user_id === user.id;
+            const isAdmin = ADMIN_EMAILS.includes(user.email ?? "");
+
+            if (!isOwner && !isAdmin) {
+                router.replace("/");
                 return;
             }
 

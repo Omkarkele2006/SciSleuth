@@ -5,6 +5,7 @@ import Link from "next/link";
 import { User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { ADMIN_EMAILS } from "@/lib/admin";
 import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import Image from "next/image";
@@ -148,8 +149,7 @@ export default function TeacherAnalyticsPage() {
       }
 
       if (
-        data.user.email !==
-        "omavkarkele@gmail.com"
+        !ADMIN_EMAILS.includes(data.user.email ?? "")
       ) {
         router.replace("/");
       }

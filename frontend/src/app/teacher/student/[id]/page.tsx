@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
+import { ADMIN_EMAILS } from "@/lib/admin";
 
 type Misconception = {
     code: string;
@@ -50,7 +51,7 @@ export default function TeacherStudentPage() {
                 return;
             }
 
-            if (user.email !== "omavkarkele@gmail.com") {
+            if (!ADMIN_EMAILS.includes(user.email ?? "")) {
                 router.replace("/");
                 return;
             }

@@ -1,110 +1,282 @@
 # SciSleuth
 
-**An AI-powered diagnostic tool that identifies and helps fix misconceptions about Newton's Laws.** SciSleuth goes beyond marking answers right or wrong—it detects the specific misconceptions behind wrong answers, generates personalized AI explanations, and visualizes concept health to guide learning.
+**Diagnose misconceptions, not mistakes.**
 
-## Problem
+SciSleuth is an AI-powered educational diagnostics platform that identifies the *reason behind a student's wrong answer* rather than simply marking it incorrect.
 
-Traditional quizzes only tell you when an answer is wrong. They don't explain *why* a student answered incorrectly. A student might answer wrong because they don't understand the concept, but they might also answer wrong because they hold a specific misconception—a deeply rooted belief that contradicts the actual physics principle.
+Instead of telling students what they got wrong, SciSleuth discovers **which misconception caused the mistake**, visualizes affected concepts through a knowledge graph, generates AI-powered explanations, and provides structured recovery pathways to repair understanding.
 
-Without identifying the misconception, students repeat the same mistakes. Teachers have no visibility into which misconceptions are most common in their classroom.
+---
 
-## Solution
+# Problem
 
-SciSleuth diagnoses misconceptions, not just wrong answers. It:
+Traditional quizzes and assessments classify answers as:
 
-1. **Detects misconceptions** by mapping wrong answers to specific misunderstandings
-2. **Maps broken concepts** to a knowledge graph so students see which concepts are affected
-3. **Generates AI explanations** using Google Gemini to explain why the misconception exists and how to fix it
-4. **Provides repair pathways** with targeted guidance for each misconception
-5. **Tracks concept health** so teachers can see how many concepts a student understands correctly
-6. **Shows patterns** through an analytics dashboard for teacher visibility
+* Correct
+* Incorrect
 
-## Features
+However, they rarely explain **why** a student answered incorrectly.
 
-- **Diagnostic Assessment**: 5-question assessment on Newton's Laws
-- **Misconception Detection**: Maps wrong answers to 5 common physics misconceptions
-- **AI-Generated Explanations**: Personalized explanations powered by Gemini 2.5 Flash
-- **Knowledge Graph**: Visual representation of concept relationships with color-coded health
-- **Repair Pathways**: Targeted explanations for each misconception
-- **Interactive Graph**: Hover over concepts to see which misconceptions affect them
-- **Teacher Analytics**: Dashboard showing misconception frequency and severity
-- **Concept Health Metrics**: Overall health score and risk level assessment
+In science education, many wrong answers stem from deeply rooted misconceptions rather than a lack of effort. These misconceptions often persist across multiple assessments and remain invisible to teachers.
 
-## Tech Stack
+As a result:
 
-**Frontend**
-- Next.js 16 (React Server Components)
-- React 19
-- TypeScript
-- Tailwind CSS 4
+* Students repeatedly make the same mistakes.
+* Teachers cannot identify underlying reasoning gaps.
+* Learning becomes focused on grades rather than conceptual understanding.
 
-**AI**
-- Google Gemini 2.5 Flash API
+---
 
-## How It Works
+# Solution
 
-1. Student takes a 5-question diagnostic on Newton's Laws
-2. System evaluates answers against correct responses
-3. Wrong answers are mapped to specific misconceptions
-4. AI generates personalized explanations for each misconception
-5. Results page shows misconceptions, AI explanations, and repair pathways
-6. Knowledge graph visualizes which concepts are "broken" (affected by misconceptions)
-7. Teacher dashboard displays aggregated misconception patterns
+SciSleuth acts as an **AI Misconception Detective**.
 
-## Getting Started
+The platform:
 
-### Prerequisites
-- Node.js 18+
-- Google Gemini API key
+1. Diagnoses misconceptions from student responses.
+2. Maps misconceptions onto a knowledge graph.
+3. Generates personalized AI explanations.
+4. Creates guided repair missions.
+5. Measures concept health and recovery.
+6. Provides classroom-wide analytics for teachers.
 
-### Installation
+---
 
-```bash
-cd frontend
-npm install
+# Key Features
+
+## Diagnostic Assessment
+
+Students complete a targeted diagnostic quiz on Newton's Laws.
+
+Instead of only checking correctness, SciSleuth analyzes which misconception each wrong answer represents.
+
+---
+
+## Misconception Detection
+
+Wrong answers are mapped to known conceptual misunderstandings such as:
+
+* Motion Requires Continuous Force
+* Balanced Forces Mean Rest
+* Force Imbalance During Collisions
+* Mass–Acceleration Confusion
+
+This allows the system to identify *why* the student answered incorrectly.
+
+---
+
+## AI-Powered Explanations
+
+Using Google Gemini 2.5 Flash, SciSleuth generates:
+
+* Personalized misconception explanations
+* Correct conceptual reasoning
+* Real-world examples
+* Recovery guidance
+
+Each explanation is tailored to the specific misconception detected.
+
+---
+
+## Interactive Knowledge Graph
+
+Concepts are represented as connected nodes.
+
+SciSleuth highlights:
+
+* Healthy concepts (green)
+* Broken concepts (red)
+
+This allows students and teachers to visualize how misconceptions affect conceptual understanding.
+
+---
+
+## Repair Missions
+
+After diagnosis, students receive structured recovery tasks.
+
+Each mission focuses on:
+
+* Understanding the misconception
+* Reviewing the correct concept
+* Applying the idea to a real-world scenario
+
+---
+
+## Recovery Tracking
+
+SciSleuth measures conceptual improvement after mission completion.
+
+Students can:
+
+* Compare before vs after concept health
+* View repaired graphs
+* Track learning progress over time
+
+---
+
+## Student Profiles
+
+Each student receives:
+
+* Attempt history
+* Graph health metrics
+* Misconception records
+* Recovery progress tracking
+
+---
+
+## Teacher Analytics Dashboard
+
+Teachers gain visibility into classroom-wide learning patterns.
+
+The dashboard provides:
+
+* Most common misconceptions
+* Severity analysis
+* Student performance overview
+* Risk indicators
+* Classroom concept health
+
+---
+
+## AI Teacher Insights
+
+Gemini analyzes classroom trends and generates actionable summaries such as:
+
+* Common reasoning gaps
+* Concept areas requiring reinforcement
+* Recommended teaching focus areas
+
+---
+
+## Intervention Planning
+
+Teachers can generate intervention plans directly from dashboard analytics.
+
+Each intervention includes:
+
+* Target misconception
+* Severity level
+* Affected students
+* Suggested instructional strategy
+* Recommended classroom activity
+
+---
+
+## Student Drilldown
+
+Teachers can move from classroom analytics to individual student analysis.
+
+This includes:
+
+* Student attempt history
+* Graph health progression
+* Misconception frequency
+* Detailed diagnostic reports
+
+---
+
+# Technology Stack
+
+## Frontend
+
+* Next.js 16
+* React 19
+* TypeScript
+* Tailwind CSS
+
+## Backend & Database
+
+* Supabase Authentication
+* Supabase PostgreSQL
+* Supabase Row Storage
+
+## Artificial Intelligence
+
+* Google Gemini 2.5 Flash
+
+## Deployment
+
+* Vercel
+
+---
+
+# How It Works
+
+```text
+Student Login
+      ↓
+Diagnostic Quiz
+      ↓
+Misconception Detection
+      ↓
+AI Explanation Generation
+      ↓
+Knowledge Graph Analysis
+      ↓
+Repair Missions
+      ↓
+Recovery Assessment
+      ↓
+Updated Concept Health
+      ↓
+Teacher Analytics
 ```
 
-### Environment Variables
+---
 
-Create a `.env.local` file:
-```
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+# Project Structure
 
-### Run Development Server
-
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Project Structure
-
-```
-frontend/src/
-├── app/                    # Page routes
-│   ├── page.tsx           # Landing page
-│   ├── diagnostic/        # Assessment questions
-│   ├── results/           # Results with AI explanations
-│   ├── graph/             # Knowledge graph visualization
-│   ├── teacher/           # Analytics dashboard
-│   └── api/explain/       # Gemini integration endpoint
-├── components/            # Reusable UI components
-├── data/                  # Questions, misconceptions, repairs
-├── lib/                   # Business logic
-└── types/                 # TypeScript interfaces
+```text
+src/
+├── app/
+│   ├── diagnostic/
+│   ├── results/
+│   ├── graph/
+│   ├── mission/
+│   ├── recover/
+│   ├── profile/
+│   ├── teacher/
+│   └── api/
+│
+├── components/
+├── data/
+├── lib/
+├── types/
+└── utils/
 ```
 
-## Future Improvements
+---
 
-- Support for additional STEM topics beyond Newton's Laws
-- Adaptive questioning based on misconceptions detected
-- Classroom dashboard with real student data aggregation
-- Machine learning model for predicting misconceptions
-- Misconception datasets from educational research
-- Mobile app for on-the-go diagnostics
+# Future Enhancements
 
-## License
+* Support for Mathematics, Chemistry and Biology
+* Adaptive questioning engine
+* Long-term learning analytics
+* Classroom intervention automation
+* Research-backed misconception datasets
+* Mobile application
+* Multi-subject knowledge graphs
 
-Hackathon project. Open for educational use.
+---
+
+# Impact
+
+SciSleuth shifts assessment from:
+
+```text
+Right vs Wrong
+```
+
+to:
+
+```text
+Diagnose → Explain → Repair → Improve
+```
+
+helping students build deeper conceptual understanding while giving teachers visibility into the hidden reasoning patterns behind mistakes.
+
+---
+
+Built with ❤️ by Team SkyHi.

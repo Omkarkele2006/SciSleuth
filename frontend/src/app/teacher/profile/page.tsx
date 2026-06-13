@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 
 import { supabase } from "@/lib/supabase";
+import { ADMIN_EMAILS } from "@/lib/admin";
 
 export default function TeacherProfilePage() {
     const router = useRouter();
@@ -47,8 +48,7 @@ export default function TeacherProfilePage() {
 
             if (
                 !user ||
-                user.email !==
-                "omavkarkele@gmail.com"
+                !ADMIN_EMAILS.includes(user.email ?? "")
             ) {
                 router.replace("/");
                 return;

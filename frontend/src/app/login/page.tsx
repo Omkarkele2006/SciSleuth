@@ -47,10 +47,6 @@ export default function LoginPage() {
             return;
         }
 
-        const ADMIN_EMAILS = [
-            "omavkarkele@gmail.com",
-        ];
-
         const userEmail =
             data.user?.email?.toLowerCase();
 
@@ -176,9 +172,6 @@ export default function LoginPage() {
                                         <label htmlFor="password" className="text-xs font-medium uppercase tracking-wider text-slate-400">
                                             Password
                                         </label>
-                                        <Link href="/recovery" className="text-xs text-emerald-400 hover:text-emerald-300">
-                                            Forgot password?
-                                        </Link>
                                     </div>
                                     <div className="group relative">
                                         <Lock className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500 transition group-focus-within:text-emerald-400" />
